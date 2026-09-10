@@ -201,7 +201,7 @@ export default function Simulator() {
             </p>
 
             {/* Resultado en vivo */}
-            {resultado && resultado.total > 0 && step >= 2 && (
+            {resultado && resultado.total > 0 && step === 3 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}

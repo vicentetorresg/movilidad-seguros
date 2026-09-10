@@ -8,9 +8,6 @@ import {
   User,
   Mail,
   Phone,
-  FileText,
-  CreditCard,
-  Car,
   Building2,
   Shield,
   ChevronDown,
@@ -181,7 +178,6 @@ export default function Simulator() {
   const inputClass =
     "w-full pl-11 pr-4 py-3.5 rounded-xl border border-border bg-surface text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm";
   const labelClass = "block text-sm font-medium text-text mb-1.5";
-  const sliderLabel = "text-sm font-medium text-text mb-2 flex justify-between items-center";
 
   return (
     <section id="simulador" className="py-24 lg:py-32 bg-surface-tertiary">
@@ -522,82 +518,138 @@ export default function Simulator() {
                     <div className="space-y-6">
                       {/* Monto original */}
                       <div>
-                        <div className={sliderLabel}>
-                          <span>Monto solicitado original</span>
-                          <span className="font-bold text-primary-950">
-                            {formatCLP(form.monto_original)}
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min={1500000}
-                          max={300000000}
-                          step={500000}
-                          value={form.monto_original}
-                          onChange={(e) => {
-                            const v = Number(e.target.value);
-                            set("monto_original", v);
-                            if (form.monto_pendiente > v)
-                              set("monto_pendiente", v);
-                          }}
-                          className="w-full h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
-                        />
-                        <div className="flex justify-between text-xs text-text-muted mt-1">
-                          <span>$1.500.000</span>
-                          <span>$300.000.000</span>
+                        <label className={labelClass}>
+                          Monto solicitado original
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-44 shrink-0">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-text-muted">
+                              $
+                            </span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className="w-full pl-7 pr-3 py-3 rounded-xl border border-border bg-surface text-text text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                              value={formatNum(form.monto_original)}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, "");
+                                const v = Math.min(
+                                  Math.max(Number(raw) || 0, 0),
+                                  300000000
+                                );
+                                set("monto_original", v);
+                                if (form.monto_pendiente > v)
+                                  set("monto_pendiente", v);
+                              }}
+                              onBlur={() => {
+                                if (form.monto_original < 1500000)
+                                  set("monto_original", 1500000);
+                              }}
+                            />
+                          </div>
+                          <input
+                            type="range"
+                            min={1500000}
+                            max={300000000}
+                            step={500000}
+                            value={form.monto_original}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              set("monto_original", v);
+                              if (form.monto_pendiente > v)
+                                set("monto_pendiente", v);
+                            }}
+                            className="flex-1 h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
+                          />
                         </div>
                       </div>
 
                       {/* Monto pendiente */}
                       <div>
-                        <div className={sliderLabel}>
-                          <span>Monto que te queda por pagar</span>
-                          <span className="font-bold text-primary-950">
-                            {formatCLP(form.monto_pendiente)}
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min={1000000}
-                          max={form.monto_original}
-                          step={500000}
-                          value={Math.min(
-                            form.monto_pendiente,
-                            form.monto_original
-                          )}
-                          onChange={(e) =>
-                            set("monto_pendiente", Number(e.target.value))
-                          }
-                          className="w-full h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
-                        />
-                        <div className="flex justify-between text-xs text-text-muted mt-1">
-                          <span>$1.000.000</span>
-                          <span>{formatCLP(form.monto_original)}</span>
+                        <label className={labelClass}>
+                          Monto que te queda por pagar
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-44 shrink-0">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-text-muted">
+                              $
+                            </span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              className="w-full pl-7 pr-3 py-3 rounded-xl border border-border bg-surface text-text text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                              value={formatNum(
+                                Math.min(
+                                  form.monto_pendiente,
+                                  form.monto_original
+                                )
+                              )}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, "");
+                                const v = Math.min(
+                                  Math.max(Number(raw) || 0, 0),
+                                  form.monto_original
+                                );
+                                set("monto_pendiente", v);
+                              }}
+                              onBlur={() => {
+                                if (form.monto_pendiente < 1000000)
+                                  set("monto_pendiente", 1000000);
+                              }}
+                            />
+                          </div>
+                          <input
+                            type="range"
+                            min={1000000}
+                            max={form.monto_original}
+                            step={500000}
+                            value={Math.min(
+                              form.monto_pendiente,
+                              form.monto_original
+                            )}
+                            onChange={(e) =>
+                              set("monto_pendiente", Number(e.target.value))
+                            }
+                            className="flex-1 h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
+                          />
                         </div>
                       </div>
 
                       {/* Cuotas restantes */}
                       <div>
-                        <div className={sliderLabel}>
-                          <span>Cuotas que te quedan por pagar</span>
-                          <span className="font-bold text-primary-950">
-                            {formatNum(form.cuotas_restantes)} cuotas
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min={6}
-                          max={240}
-                          step={1}
-                          value={form.cuotas_restantes}
-                          onChange={(e) =>
-                            set("cuotas_restantes", Number(e.target.value))
-                          }
-                          className="w-full h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
-                        />
-                        <div className="flex justify-between text-xs text-text-muted mt-1">
-                          <span>6 cuotas</span>
-                          <span>240 cuotas</span>
+                        <label className={labelClass}>
+                          Cuotas que te quedan por pagar
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            className="w-20 shrink-0 px-3 py-3 rounded-xl border border-border bg-surface text-text text-sm font-semibold text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            value={form.cuotas_restantes}
+                            onChange={(e) => {
+                              const raw = e.target.value.replace(/\D/g, "");
+                              const v = Math.min(
+                                Math.max(Number(raw) || 0, 0),
+                                240
+                              );
+                              set("cuotas_restantes", v);
+                            }}
+                            onBlur={() => {
+                              if (form.cuotas_restantes < 6)
+                                set("cuotas_restantes", 6);
+                            }}
+                          />
+                          <input
+                            type="range"
+                            min={6}
+                            max={240}
+                            step={1}
+                            value={form.cuotas_restantes}
+                            onChange={(e) =>
+                              set("cuotas_restantes", Number(e.target.value))
+                            }
+                            className="flex-1 h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
+                          />
                         </div>
                       </div>
                     </div>

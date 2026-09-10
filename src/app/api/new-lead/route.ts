@@ -43,9 +43,9 @@ export async function POST(req: NextRequest) {
   <div style="max-width:600px;margin:0 auto;padding:32px 16px">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(3,105,161,0.08)">
       <!-- Header -->
-      <div style="background:linear-gradient(135deg,#0369A1 0%,#0EA5E9 100%);padding:32px 24px;text-align:center">
-        <h1 style="color:#fff;font-size:22px;margin:0">Movilidad Seguros</h1>
-        <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:8px 0 0">Portabilidad de Seguros</p>
+      <div style="background:linear-gradient(135deg,#0369A1 0%,#0EA5E9 100%);padding:28px 24px;text-align:center">
+        <img src="https://www.rebajatuseguro.cl/rebajatuseguro-logo.svg" alt="Rebaja Tu Seguro" width="220" height="40" style="display:inline-block;height:40px;width:auto;filter:brightness(0) invert(1)" />
+        <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:10px 0 0">Portabilidad de Seguros</p>
       </div>
 
       <!-- Body -->

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 const links = [
-  { href: "#simulador", label: "Simula tu Devolucion" },
-  { href: "#como-funciona", label: "Como Funciona" },
+  { href: "#simulador", label: "Simula tu Devolución" },
+  { href: "#como-funciona", label: "Cómo Funciona" },
   { href: "#servicios", label: "Servicios" },
   { href: "#nosotros", label: "Nosotros" },
   { href: "#contacto", label: "Contacto" },
@@ -30,17 +31,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px]">
           <a href="#" className="flex items-center gap-2.5 cursor-pointer">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/20">
-              <Shield className="w-5 h-5 text-text-inverse" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-primary-900 leading-tight tracking-tight">
-                Movilidad Seguros
-              </span>
-              <span className="text-[10px] font-medium text-text-muted tracking-widest uppercase">
-                Portabilidad de seguros
-              </span>
-            </div>
+            <Image
+              src="/rebajatuseguro-logo.svg"
+              alt="Rebaja Tu Seguro"
+              width={180}
+              height={34}
+              className="h-8 w-auto"
+              priority
+            />
           </a>
 
           <div className="hidden lg:flex items-center gap-1">
@@ -55,7 +53,7 @@ export default function Navbar() {
             ))}
             <a
               href="#simulador"
-              className="ml-4 px-6 py-2.5 rounded-full text-sm font-semibold btn-primary"
+              className="ml-4 px-6 py-2.5 rounded-xl text-sm font-semibold btn-primary"
             >
               Simular ahora
             </a>
@@ -64,7 +62,7 @@ export default function Navbar() {
           <button
             className="lg:hidden p-2 rounded-lg hover:bg-primary-50 transition-colors cursor-pointer"
             onClick={() => setOpen(!open)}
-            aria-label="Menu"
+            aria-label="Menú"
           >
             {open ? (
               <X className="w-6 h-6 text-text" />
@@ -91,7 +89,7 @@ export default function Navbar() {
             <a
               href="#simulador"
               onClick={() => setOpen(false)}
-              className="block w-full text-center mt-3 px-6 py-3 rounded-full text-sm font-semibold btn-primary cursor-pointer"
+              className="block w-full text-center mt-3 px-6 py-3 rounded-xl text-sm font-semibold btn-primary cursor-pointer"
             >
               Simular ahora
             </a>

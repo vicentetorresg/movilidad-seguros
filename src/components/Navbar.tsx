@@ -22,7 +22,7 @@ export default function Navbar() {
             <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-dark-950 tracking-tight">
+            <span className="text-xl font-bold text-gray-900 tracking-tight">
               Movilidad<span className="text-primary-600">Seguros</span>
             </span>
           </a>
@@ -32,7 +32,7 @@ export default function Navbar() {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-medium text-dark-500 hover:text-primary-600 transition-colors"
+                className="text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors"
               >
                 {l.label}
               </a>
@@ -56,14 +56,14 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden glass border-t border-dark-100">
+        <div className="md:hidden bg-white border-t border-gray-100">
           <div className="px-4 py-4 space-y-3">
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="block text-sm font-medium text-dark-600 hover:text-primary-600"
+                className="block text-sm font-medium text-gray-600 hover:text-primary-600"
               >
                 {l.label}
               </a>

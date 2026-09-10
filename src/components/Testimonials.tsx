@@ -26,16 +26,16 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section id="testimonios" className="py-24 bg-dark-50">
+    <section id="testimonios" className="py-24 bg-gray-50 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-sm font-semibold text-primary-600 uppercase tracking-wider mb-3">
             Testimonios
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-dark-950 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
             Historias de exito
           </h2>
-          <p className="mt-4 text-dark-400 text-lg">
+          <p className="mt-4 text-gray-400 text-lg">
             Miles de personas ya han recuperado su dinero con nosotros.
           </p>
         </div>
@@ -48,9 +48,9 @@ export default function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.15 }}
-              className="bg-white rounded-3xl p-8 border border-dark-100 relative"
+              className="bg-white rounded-3xl p-8 border border-gray-100 relative shadow-sm"
             >
-              <Quote className="w-10 h-10 text-primary-100 absolute top-6 right-6" />
+              <Quote className="w-10 h-10 text-gray-100 absolute top-6 right-6" />
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: t.rating }).map((_, j) => (
                   <Star
@@ -59,12 +59,12 @@ export default function Testimonials() {
                   />
                 ))}
               </div>
-              <p className="text-dark-600 leading-relaxed text-sm mb-6">
+              <p className="text-gray-500 leading-relaxed text-sm mb-6">
                 &ldquo;{t.text}&rdquo;
               </p>
               <div>
-                <p className="font-bold text-dark-950">{t.name}</p>
-                <p className="text-sm text-dark-400">{t.role}</p>
+                <p className="font-bold text-gray-900">{t.name}</p>
+                <p className="text-sm text-gray-400">{t.role}</p>
               </div>
             </motion.div>
           ))}

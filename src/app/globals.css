@@ -1,37 +1,37 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-primary-50: #eef5ff;
-  --color-primary-100: #d9e8ff;
-  --color-primary-200: #bcd8ff;
-  --color-primary-300: #8ec0ff;
-  --color-primary-400: #599dff;
-  --color-primary-500: #3378ff;
-  --color-primary-600: #1b57f5;
-  --color-primary-700: #1443e1;
-  --color-primary-800: #1736b6;
-  --color-primary-900: #19338f;
-  --color-primary-950: #142157;
+  --color-primary-50: #f0f5ff;
+  --color-primary-100: #e0ebff;
+  --color-primary-200: #c7d9ff;
+  --color-primary-300: #a0c0ff;
+  --color-primary-400: #6b9cff;
+  --color-primary-500: #4680ff;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
 
-  --color-accent-50: #edfcf2;
-  --color-accent-100: #d3f8e0;
-  --color-accent-200: #aaf0c6;
-  --color-accent-300: #73e3a5;
-  --color-accent-400: #3acd7e;
-  --color-accent-500: #16b364;
-  --color-accent-600: #0a9150;
+  --color-accent-50: #f0fdf4;
+  --color-accent-100: #dcfce7;
+  --color-accent-200: #bbf7d0;
+  --color-accent-300: #86efac;
+  --color-accent-400: #4ade80;
+  --color-accent-500: #22c55e;
+  --color-accent-600: #16a34a;
 
-  --color-dark-50: #f6f6f9;
-  --color-dark-100: #ececf2;
-  --color-dark-200: #d5d5e2;
-  --color-dark-300: #b1b1c9;
-  --color-dark-400: #8787ab;
-  --color-dark-500: #686891;
-  --color-dark-600: #545378;
-  --color-dark-700: #454462;
-  --color-dark-800: #3b3b53;
-  --color-dark-900: #353447;
-  --color-dark-950: #0f0f18;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
 
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
@@ -46,16 +46,16 @@ body {
 }
 
 @utility glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 @utility gradient-primary {
-  background: linear-gradient(135deg, #1b57f5 0%, #1443e1 50%, #19338f 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
-@utility gradient-dark {
-  background: linear-gradient(135deg, #0f0f18 0%, #353447 50%, #142157 100%);
+@utility gradient-hero {
+  background: linear-gradient(135deg, #f0f5ff 0%, #e0ebff 40%, #f0fdf4 100%);
 }

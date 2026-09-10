@@ -32,7 +32,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-[72px]">
           <a href="#" className="flex items-center gap-2.5 cursor-pointer">
             <Image
-              src={scrolled ? "/rebajatuseguro-logo.svg" : "/rebajatuseguro-logo-white.svg"}
+              src="/rebajatuseguro-logo.svg"
               alt="Rebaja Tu Seguro"
               width={180}
               height={34}
@@ -46,38 +46,28 @@ export default function Navbar() {
               <a
                 key={l.href}
                 href={l.href}
-                className={`px-4 py-2 text-sm font-medium transition-colors rounded-lg cursor-pointer ${
-                  scrolled
-                    ? "text-text-secondary hover:text-primary hover:bg-primary-50"
-                    : "text-primary-200 hover:text-white hover:bg-white/10"
-                }`}
+                className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-primary-700 transition-colors rounded-lg hover:bg-primary-50 cursor-pointer"
               >
                 {l.label}
               </a>
             ))}
             <a
               href="#simulador"
-              className={`ml-4 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                scrolled
-                  ? "btn-primary"
-                  : "bg-white text-primary-900 hover:bg-primary-50 shadow-lg shadow-black/10"
-              }`}
+              className="ml-4 px-6 py-2.5 rounded-xl text-sm font-semibold btn-primary"
             >
               Simular ahora
             </a>
           </div>
 
           <button
-            className={`lg:hidden p-2 rounded-lg transition-colors cursor-pointer ${
-              scrolled ? "hover:bg-primary-50" : "hover:bg-white/10"
-            }`}
+            className="lg:hidden p-2 rounded-lg hover:bg-primary-50 transition-colors cursor-pointer"
             onClick={() => setOpen(!open)}
             aria-label="Menú"
           >
             {open ? (
-              <X className={`w-6 h-6 ${scrolled ? "text-text" : "text-white"}`} />
+              <X className="w-6 h-6 text-text" />
             ) : (
-              <Menu className={`w-6 h-6 ${scrolled ? "text-text" : "text-white"}`} />
+              <Menu className="w-6 h-6 text-text" />
             )}
           </button>
         </div>

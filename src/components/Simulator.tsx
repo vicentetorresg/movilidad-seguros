@@ -1228,7 +1228,7 @@ export default function Simulator() {
                 "No aplica para créditos hipotecarios",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-accent-500 mt-0.5 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-white mt-0.5 shrink-0" />
                   <span className="text-primary-200 text-sm">{item}</span>
                 </div>
               ))}

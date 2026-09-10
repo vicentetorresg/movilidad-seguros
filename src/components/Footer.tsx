@@ -15,7 +15,7 @@ export default function Footer() {
             />
           </a>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-primary-400">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/70">
             {[
               ["#simulador", "Simulador"],
               ["#como-funciona", "Cómo funciona"],
@@ -35,7 +35,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-primary-500 text-center sm:text-left">
+          <div className="text-xs text-white/60 text-center sm:text-left">
             <p>
               &copy; {new Date().getFullYear()} Fortex Corredora de Seguros SpA
               — RUT 78.452.756-5
@@ -44,16 +44,16 @@ export default function Footer() {
               Rebaja Tu Seguro es una marca de Fortex Corredora de Seguros SpA. Todos los derechos reservados.
             </p>
           </div>
-          <div className="flex gap-6 text-xs text-primary-500">
+          <div className="flex gap-6 text-xs text-white/60">
             <a
               href="/privacidad"
-              className="hover:text-primary-300 transition-colors cursor-pointer"
+              className="hover:text-white transition-colors cursor-pointer"
             >
               Política de privacidad
             </a>
             <a
               href="/terminos"
-              className="hover:text-primary-300 transition-colors cursor-pointer"
+              className="hover:text-white transition-colors cursor-pointer"
             >
               Términos y condiciones
             </a>

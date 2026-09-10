@@ -40,7 +40,9 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} Fortex Corredora de Seguros SpA
               — RUT 78.452.756-5
             </p>
-            <p className="mt-0.5">Todos los derechos reservados.</p>
+            <p className="mt-0.5">
+              Rebaja Tu Seguro es una marca de Fortex Corredora de Seguros SpA. Todos los derechos reservados.
+            </p>
           </div>
           <div className="flex gap-6 text-xs text-primary-400">
             <a

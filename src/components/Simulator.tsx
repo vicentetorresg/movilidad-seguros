@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -21,57 +21,136 @@ import { supabase } from "@/lib/supabase";
 
 type Step = 1 | 2 | 3;
 
-// Tasas calibradas con API real: refund = (capital * r1 - balance * r2) * cuotas
-// [r1_desg, r2_desg, r1_ces, r2_ces]
-const TASAS: Record<string, [number, number, number, number]> = {
+// Correction factors for cesantia non-linear effects (non-caja institutions only)
+// DESG is perfectly linear — no corrections needed
+const CES_CUOTAS_CORR: [number, number][] = [
+  [6, 0.7940], [12, 0.9160], [24, 0.9790], [36, 1.0000],
+  [48, 1.0105], [60, 1.0170], [96, 1.0780], [120, 1.1540],
+  [180, 1.1700], [240, 1.1800],
+];
+const CES_AMOUNT_CORR: [number, number][] = [
+  [10_000_000, 0.8845], [20_000_000, 0.9486], [30_000_000, 0.9700],
+  [50_000_000, 0.9871], [100_000_000, 1.0000], [200_000_000, 1.0064],
+];
+
+const CAJAS = new Set([
+  "Caja 18 de Septiembre", "Caja La Araucana", "Caja Los Andes", "Caja Los Heroes",
+]);
+
+function interpolate(table: [number, number][], x: number): number {
+  if (x <= table[0][0]) return table[0][1];
+  if (x >= table[table.length - 1][0]) return table[table.length - 1][1];
+  for (let i = 0; i < table.length - 1; i++) {
+    const [x0, y0] = table[i];
+    const [x1, y1] = table[i + 1];
+    if (x >= x0 && x <= x1) {
+      return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
+    }
+  }
+  return 1;
+}
+
+// DESG model: desg = max(0, (cap*r1d - bal*r2d) * (q - k) - 19990)
+// CES model:  ces  = (cap*r1c - bal*r2c) * q * corrections
+// Banco Estado uses special CES handling (non-linear)
+// [r1_desg, r2_desg, k_desg, r1_ces, r2_ces]
+const TASAS: Record<string, [number, number, number, number, number]> = {
   // BANCOS
-  "Banco BCI":           [0.0005251, 0.0002880, 0.0012693, 0.0008913],
-  "Banco BICE":          [0.0004426, 0.0002880, 0.0013609, 0.0008913],
-  "Banco de Chile":      [0.0004793, 0.0002880, 0.0015443, 0.0008913],
-  "Banco Estado":        [0.0000811, -0.0000500, 0.0009594, 0.0006545],
-  "Banco Falabella":     [0.0005343, 0.0002880, 0.0013609, 0.0008913],
-  "Banco Internacional": [0.0006168, 0.0002880, 0.0013609, 0.0008913],
-  "Banco Itau":          [0.0005526, 0.0002880, 0.0022006, 0.0008913],
-  "Banco Ripley":        [0.0006076, 0.0002880, 0.0013609, 0.0008913],
-  "Banco Scotiabank":    [0.0005251, 0.0002880, 0.0011217, 0.0008913],
-  "Condell":             [0.0015895, 0.0005950, 0.0014526, 0.0008913],
-  "Consorcio":           [0.0009157, 0.0005100, 0.0013609, 0.0008913],
-  "Santander":           [0.0005251, 0.0002880, 0.0013518, 0.0008913],
-  "Security":            [0.0006168, 0.0002880, 0.0013609, 0.0008913],
+  "Banco BCI":           [0.0005490, 0.0002880, 1.6296, 0.0012693, 0.0008913],
+  "Banco BICE":          [0.0004642, 0.0002880, 1.7965, 0.0013609, 0.0008913],
+  "Banco de Chile":      [0.0005019, 0.0002880, 1.7125, 0.0015443, 0.0008913],
+  "Banco Estado":        [0.0000972, -0.0000500, 3.0877, 0.0009594, 0.0006545],
+  "Banco Falabella":     [0.0005584, 0.0002880, 1.6153, 0.0013609, 0.0008913],
+  "Banco Internacional": [0.0006433, 0.0002880, 1.5107, 0.0013609, 0.0008913],
+  "Banco Itau":          [0.0005773, 0.0002880, 1.5885, 0.0022006, 0.0008913],
+  "Banco Ripley":        [0.0006339, 0.0002880, 1.5205, 0.0013609, 0.0008913],
+  "Banco Scotiabank":    [0.0005490, 0.0002880, 1.6296, 0.0011217, 0.0008913],
+  "Condell":             [0.0016406, 0.0005950, 1.2215, 0.0014526, 0.0008913],
+  "Consorcio":           [0.0009476, 0.0005100, 1.3682, 0.0013609, 0.0008913],
+  "Santander":           [0.0005490, 0.0002880, 1.6296, 0.0013518, 0.0008913],
+  "Security":            [0.0006433, 0.0002880, 1.5107, 0.0013609, 0.0008913],
   // COOPERATIVAS
-  "Ahorrocoop":  [0.0008928, 0.0005950, 0.0014526, 0.0008913],
-  "Bancrece":    [0.0008928, 0.0005100, 0.0013609, 0.0008913],
-  "Capual":      [0.0008928, 0.0005100, 0.0013609, 0.0008913],
-  "Coocretal":   [0.0008928, 0.0005100, 0.0013609, 0.0008913],
-  "Coopeuch":    [0.0005555, 0.0003990, 0.0008613, 0.0006545],
-  "Financoop":   [0.0008928, 0.0005950, 0.0013609, 0.0008913],
-  "Libercoop":   [0.0008928, 0.0005100, 0.0013609, 0.0008913],
-  "Oriencoop":   [0.0008928, 0.0005950, 0.0014526, 0.0008913],
-  "Bansur":      [0.0008928, 0.0005100, 0.0014526, 0.0008913],
-  "Coonfia":     [0.0008928, 0.0005100, 0.0014526, 0.0008913],
-  "Solventa":    [0.0008928, 0.0005100, 0.0014526, 0.0008913],
-  "Detacoop":    [0.0015646, 0.0005950, 0.0014661, 0.0008913],
+  "Ahorrocoop":  [0.0009240, 0.0005950, 1.4749, 0.0014526, 0.0008913],
+  "Bancrece":    [0.0009240, 0.0005100, 1.3812, 0.0013609, 0.0008913],
+  "Capual":      [0.0009240, 0.0005100, 1.3812, 0.0013609, 0.0008913],
+  "Coocretal":   [0.0009240, 0.0005100, 1.3812, 0.0013609, 0.0008913],
+  "Coopeuch":    [0.0005771, 0.0003990, 1.5284, 0.0008613, 0.0006545],
+  "Financoop":   [0.0009240, 0.0005950, 1.4749, 0.0013609, 0.0008913],
+  "Libercoop":   [0.0009240, 0.0005100, 1.3812, 0.0013609, 0.0008913],
+  "Oriencoop":   [0.0009240, 0.0005950, 1.4749, 0.0014526, 0.0008913],
+  "Bansur":      [0.0009240, 0.0005100, 1.3812, 0.0014526, 0.0008913],
+  "Coonfia":     [0.0009240, 0.0005100, 1.3812, 0.0014526, 0.0008913],
+  "Solventa":    [0.0009240, 0.0005100, 1.3812, 0.0014526, 0.0008913],
+  "Detacoop":    [0.0016150, 0.0005950, 1.2258, 0.0014661, 0.0008913],
   // AUTOMOTRIZ
-  "Amicar":                [0.0008745, 0.0005950, 0.0000000, 0.0000000],
-  "Autofin":               [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "BK SPA":                [0.0006819, 0.0005950, 0.0014810, 0.0008913],
-  "Chevrolet":             [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "GM Financial":          [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Global Soluciones":     [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Mafi":                  [0.0008745, 0.0005950, 0.0000000, 0.0000000],
-  "Marubeni Credit":       [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Mitsui":                [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Mundo Credito":         [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "OLX Autos":             [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Santander Consumer":    [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Tanner":                [0.0006361, 0.0005950, 0.0014810, 0.0008913],
-  "Unidad Automotriz":     [0.0008745, 0.0005950, 0.0014810, 0.0008913],
-  "Eurocapital":           [0.0008745, 0.0005950, 0.0000000, 0.0000000],
-  // CAJAS DE COMPENSACION (solo desgravamen)
-  "Caja 18 de Septiembre": [0.0011597, 0.0003677, 0.0000000, 0.0000000],
-  "Caja La Araucana":      [0.0011875, 0.0006156, 0.0000000, 0.0000000],
-  "Caja Los Andes":        [0.0008324, 0.0003905, 0.0000000, 0.0000000],
-  "Caja Los Heroes":       [0.0017765, 0.0006156, 0.0000000, 0.0000000],
+  "Amicar":                [0.0009052, 0.0005950, 1.4895, 0.0007559, 0.0008913],
+  "Autofin":               [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "BK SPA":                [0.0007072, 0.0005950, 1.7262, 0.0014810, 0.0008913],
+  "Chevrolet":             [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "GM Financial":          [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Global Soluciones":     [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Mafi":                  [0.0009052, 0.0005950, 1.4895, 0.0007559, 0.0008913],
+  "Marubeni Credit":       [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Mitsui":                [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Mundo Credito":         [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "OLX Autos":             [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Santander Consumer":    [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Tanner":                [0.0006600, 0.0005950, 1.8206, 0.0014810, 0.0008913],
+  "Unidad Automotriz":     [0.0009052, 0.0005950, 1.4896, 0.0014810, 0.0008913],
+  "Eurocapital":           [0.0009052, 0.0005950, 1.4896, 0.0000000, 0.0000000],
+  // CAJAS DE COMPENSACION (solo desgravamen, k=0 — perfectly linear)
+  "Caja 18 de Septiembre": [0.0011597, 0.0003677, 0, 0.0000000, 0.0000000],
+  "Caja La Araucana":      [0.0011875, 0.0006156, 0, 0.0000000, 0.0000000],
+  "Caja Los Andes":        [0.0008324, 0.0003905, 0, 0.0000000, 0.0000000],
+  "Caja Los Heroes":       [0.0017765, 0.0006156, 0, 0.0000000, 0.0000000],
+};
+
+// Slug mapping for mueveseguro.cl API
+const SLUGS: Record<string, string> = {
+  "Banco BCI": "banco-bci",
+  "Banco BICE": "banco-bice",
+  "Banco de Chile": "banco-de-chile",
+  "Banco Estado": "banco-estado",
+  "Banco Falabella": "banco-falabella",
+  "Banco Internacional": "banco-internacional",
+  "Banco Itau": "banco-itau",
+  "Banco Ripley": "banco-ripley",
+  "Banco Scotiabank": "banco-scotiabank",
+  "Condell": "condell",
+  "Consorcio": "consorcio",
+  "Santander": "santander",
+  "Security": "security",
+  "Ahorrocoop": "ahorrocoop",
+  "Bancrece": "bancrece",
+  "Capual": "capual",
+  "Coocretal": "coocretal",
+  "Coopeuch": "coopeuch",
+  "Financoop": "financoop",
+  "Libercoop": "libercoop",
+  "Oriencoop": "oriencoop",
+  "Bansur": "bansur",
+  "Coonfia": "coonfia",
+  "Solventa": "solventa",
+  "Detacoop": "detacoop",
+  "Amicar": "amicar",
+  "Autofin": "autofin",
+  "BK SPA": "bk-spa",
+  "Chevrolet": "chevrolet",
+  "GM Financial": "gm-financial",
+  "Global Soluciones": "global-soluciones-financieras",
+  "Mafi": "mafi",
+  "Marubeni Credit": "marubeni-credit",
+  "Mitsui": "mitsui",
+  "Mundo Credito": "mundo-credito",
+  "OLX Autos": "olx-autos",
+  "Santander Consumer": "santander-consumer",
+  "Tanner": "tanner",
+  "Unidad Automotriz": "unidad-automotriz",
+  "Eurocapital": "eurocapital",
+  "Caja 18 de Septiembre": "caja-18-de-septiembre",
+  "Caja La Araucana": "caja-la-araucana",
+  "Caja Los Andes": "caja-los-andes",
+  "Caja Los Heroes": "caja-los-heroes",
 };
 
 const CATEGORIAS: { key: string; label: string; instituciones: string[] }[] = [
@@ -104,7 +183,7 @@ const CATEGORIAS: { key: string; label: string; instituciones: string[] }[] = [
   },
   {
     key: "caja",
-    label: "Caja de Compensacion",
+    label: "Caja de Compensación",
     instituciones: [
       "Caja 18 de Septiembre", "Caja La Araucana",
       "Caja Los Andes", "Caja Los Heroes",
@@ -152,15 +231,32 @@ function calcularDevolucion(
   const tasas = TASAS[nombreInstitucion];
   if (!tasas) return null;
 
-  const [r1d, r2d, r1c, r2c] = tasas;
+  const [r1d, r2d, kDesg, r1c, r2c] = tasas;
+  const isCaja = CAJAS.has(nombreInstitucion);
   let desgAmount = 0;
   let deseAmount = 0;
 
   if (tipoSeguro === "desgravamen" || tipoSeguro === "ambos") {
-    desgAmount = Math.max(0, Math.round((montoOriginal * r1d - montoPendiente * r2d) * cuotasRestantes));
+    if (isCaja) {
+      // Cajas are perfectly linear with no offset
+      desgAmount = Math.max(0, Math.round(
+        (montoOriginal * r1d - montoPendiente * r2d) * cuotasRestantes
+      ));
+    } else {
+      // Non-caja: desg = (cap*r1 - bal*r2) * (q - k) - 19990
+      const slope = montoOriginal * r1d - montoPendiente * r2d;
+      desgAmount = Math.max(0, Math.round(
+        slope * (cuotasRestantes - kDesg) - 19990
+      ));
+    }
   }
   if (tipoSeguro === "cesantia" || tipoSeguro === "ambos") {
-    deseAmount = Math.max(0, Math.round((montoOriginal * r1c - montoPendiente * r2c) * cuotasRestantes));
+    let raw = (montoOriginal * r1c - montoPendiente * r2c) * cuotasRestantes;
+    if (!isCaja) {
+      raw *= interpolate(CES_CUOTAS_CORR, cuotasRestantes);
+      raw *= interpolate(CES_AMOUNT_CORR, montoOriginal);
+    }
+    deseAmount = Math.max(0, Math.round(raw));
   }
 
   return { desgAmount, deseAmount, total: desgAmount + deseAmount };
@@ -274,7 +370,8 @@ export default function Simulator() {
   // Si es caja, forzar tipo_seguro a desgravamen (no tienen cesantía)
   const tipoSeguroEfectivo = isCaja ? "desgravamen" : form.tipo_seguro;
 
-  const resultado = useMemo(() => {
+  // Local formula for instant preview
+  const localResultado = useMemo(() => {
     if (
       !tipoSeguroEfectivo ||
       !form.nombre_institucion ||
@@ -296,6 +393,89 @@ export default function Simulator() {
     form.monto_pendiente,
     form.cuotas_restantes,
   ]);
+
+  // API-backed result (overrides local when available)
+  const [apiResultado, setApiResultado] = useState<{
+    desgAmount: number;
+    deseAmount: number;
+    total: number;
+  } | null>(null);
+  const [apiLoading, setApiLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (
+      !tipoSeguroEfectivo ||
+      !form.nombre_institucion ||
+      form.monto_pendiente <= 0 ||
+      form.cuotas_restantes <= 0 ||
+      step !== 3
+    ) {
+      setApiResultado(null);
+      return;
+    }
+
+    const slug = SLUGS[form.nombre_institucion];
+    if (!slug) {
+      setApiResultado(null);
+      return;
+    }
+
+    // Mark stale but keep showing previous API result until new one arrives
+    setApiLoading(true);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortRef.current) abortRef.current.abort();
+
+    debounceRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      try {
+        const resp = await fetch("/api/simulate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            slug,
+            capital: form.monto_original,
+            balance: form.monto_pendiente,
+            cuotas: form.cuotas_restantes,
+          }),
+          signal: controller.signal,
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          let desg = data.desgAmount || 0;
+          let dese = data.deseAmount || 0;
+          if (tipoSeguroEfectivo === "desgravamen") dese = 0;
+          if (tipoSeguroEfectivo === "cesantia") desg = 0;
+          setApiResultado({ desgAmount: desg, deseAmount: dese, total: desg + dese });
+        }
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        // fallback to local on network error
+        setApiResultado(null);
+      } finally {
+        setApiLoading(false);
+      }
+    }, 400);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (abortRef.current) abortRef.current.abort();
+    };
+  }, [
+    tipoSeguroEfectivo,
+    form.nombre_institucion,
+    form.monto_original,
+    form.monto_pendiente,
+    form.cuotas_restantes,
+    step,
+  ]);
+
+  // Use API result when available, otherwise local
+  const resultado = apiResultado ?? localResultado;
 
   const canGoStep2 =
     form.nombre.trim() &&
@@ -423,14 +603,11 @@ export default function Simulator() {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-12 lg:mb-16"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary-100 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
-            Simulador de Devolucion
-          </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-primary-950 tracking-tight">
-            Descubre cuanto podrias recuperar
+            Descubre cuánto podrías recuperar
           </h2>
-          <p className="mt-4 text-text-secondary text-lg">
-            Completa 3 simples pasos y obtendras una estimacion inmediata.
+          <p className="mt-3 text-text-secondary text-lg">
+            Completa 3 simples pasos y obtendrás una estimación inmediata.
           </p>
         </motion.div>
 
@@ -485,7 +662,7 @@ export default function Simulator() {
                       Tus datos
                     </h3>
                     <p className="text-sm text-text-muted mb-5">
-                      Para contactarte con tu simulacion
+                      Para contactarte con tu simulación
                     </p>
 
                     <div className="space-y-3.5">
@@ -498,6 +675,7 @@ export default function Simulator() {
                               type="text"
                               className={inputWithIcon}
                               placeholder="Juan"
+                              autoComplete="given-name"
                               value={form.nombre}
                               onChange={(e) => set("nombre", e.target.value)}
                             />
@@ -511,6 +689,7 @@ export default function Simulator() {
                               type="text"
                               className={inputWithIcon}
                               placeholder="Perez"
+                              autoComplete="family-name"
                               value={form.apellido}
                               onChange={(e) => set("apellido", e.target.value)}
                             />
@@ -518,26 +697,28 @@ export default function Simulator() {
                         </div>
                       </div>
                       <div>
-                        <label className={labelClass}>Telefono</label>
+                        <label className={labelClass}>Teléfono</label>
                         <div className="relative">
                           <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                           <input
                             type="tel"
                             className={inputWithIcon}
                             placeholder="+56 9 1234 5678"
+                            autoComplete="tel"
                             value={form.telefono}
                             onChange={(e) => set("telefono", e.target.value)}
                           />
                         </div>
                       </div>
                       <div>
-                        <label className={labelClass}>Correo electronico</label>
+                        <label className={labelClass}>Correo electrónico</label>
                         <div className="relative">
                           <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                           <input
                             type="email"
                             className={inputWithIcon}
                             placeholder="juan@email.com"
+                            autoComplete="email"
                             value={form.email}
                             onChange={(e) => set("email", e.target.value)}
                           />
@@ -569,7 +750,7 @@ export default function Simulator() {
                           className="mt-0.5 w-4 h-4 rounded accent-primary cursor-pointer"
                         />
                         <span className="text-xs text-text-muted leading-relaxed">
-                          Autorizo tratamiento para portabilidad y promocion de
+                          Autorizo tratamiento para portabilidad y promoción de
                           seguros.
                         </span>
                       </label>
@@ -599,7 +780,7 @@ export default function Simulator() {
                       Tu seguro
                     </h3>
                     <p className="text-sm text-text-muted mb-5">
-                      Selecciona el tipo de seguro e institucion
+                      Selecciona el tipo de seguro e institución
                     </p>
 
                     <div className="space-y-4">
@@ -610,7 +791,7 @@ export default function Simulator() {
                           <div className="grid grid-cols-3 gap-2">
                             {[
                               { value: "desgravamen", label: "Desgravamen" },
-                              { value: "cesantia", label: "Cesantia" },
+                              { value: "cesantia", label: "Cesantía" },
                               { value: "ambos", label: "Ambos" },
                             ].map((opt) => (
                               <button
@@ -629,10 +810,10 @@ export default function Simulator() {
                         </div>
                       )}
 
-                      {/* Tipo de institucion */}
+                      {/* Tipo de institución */}
                       <div>
                         <label className={labelClass}>
-                          Tipo de institucion
+                          Tipo de institución
                         </label>
                         <CustomSelect
                           value={form.tipo_institucion}
@@ -651,7 +832,7 @@ export default function Simulator() {
                         />
                       </div>
 
-                      {/* Nombre de institucion */}
+                      {/* Nombre de institución */}
                       {categoria && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
@@ -659,7 +840,7 @@ export default function Simulator() {
                           transition={{ duration: 0.2 }}
                         >
                           <label className={labelClass}>
-                            Nombre de institucion
+                            Nombre de institución
                           </label>
                           <CustomSelect
                             value={form.nombre_institucion}
@@ -668,7 +849,7 @@ export default function Simulator() {
                               value: name,
                               label: name,
                             }))}
-                            placeholder="Selecciona institucion"
+                            placeholder="Selecciona institución"
                             icon={Shield}
                           />
                         </motion.div>
@@ -677,7 +858,7 @@ export default function Simulator() {
                       {isCaja && (
                         <div className="p-3 rounded-lg bg-primary-50 border border-primary-200">
                           <p className="text-xs text-primary-700">
-                            Las Cajas de Compensacion solo tienen seguro de
+                            Las Cajas de Compensación solo tienen seguro de
                             desgravamen.
                           </p>
                         </div>
@@ -696,7 +877,7 @@ export default function Simulator() {
                         onClick={goToStep3}
                         className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        Simular devolucion
+                        Simular devolución
                         <Calculator className="w-4 h-4" />
                       </button>
                     </div>
@@ -848,14 +1029,25 @@ export default function Simulator() {
                     </div>
 
                     {/* Resultado inline */}
+                    {apiLoading && !resultado && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-6 p-5 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 flex items-center justify-center gap-3"
+                      >
+                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                        <p className="text-sm font-medium text-primary-950">Calculando devolución...</p>
+                      </motion.div>
+                    )}
                     {resultado && resultado.total > 0 && (
                       <motion.div
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-5 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200"
+                        className={`mt-6 p-5 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 transition-opacity ${apiLoading ? "opacity-60" : ""}`}
                       >
-                        <p className="text-xs text-text-muted mb-0.5">
+                        <p className="text-xs text-text-muted mb-0.5 flex items-center gap-2">
                           A recuperar por:
+                          {apiLoading && <Loader2 className="w-3 h-3 animate-spin text-primary" />}
                         </p>
                         {resultado.desgAmount > 0 && (
                           <p className="text-sm text-text-secondary">
@@ -864,14 +1056,14 @@ export default function Simulator() {
                         )}
                         {resultado.deseAmount > 0 && (
                           <p className="text-sm text-text-secondary">
-                            Cesantia: {formatCLP(resultado.deseAmount)}
+                            Cesantía: {formatCLP(resultado.deseAmount)}
                           </p>
                         )}
                         <p className="text-2xl sm:text-3xl font-bold text-primary-950 mt-2">
                           Total: {formatCLP(resultado.total)}
                         </p>
                         <p className="text-[10px] text-text-muted mt-2">
-                          * Monto referencial sujeto a confirmacion.
+                          * Monto referencial sujeto a confirmación.
                         </p>
                       </motion.div>
                     )}
@@ -917,16 +1109,16 @@ export default function Simulator() {
                       <CheckCircle2 className="w-8 h-8 text-accent-600" />
                     </div>
                     <h3 className="text-xl font-bold text-primary-950 mb-2">
-                      Solicitud recibida
+                      ¡Solicitud recibida!
                     </h3>
                     <p className="text-text-secondary text-sm max-w-sm mx-auto leading-relaxed">
-                      Nuestro equipo analizara tu caso y te contactara a la
-                      brevedad con los detalles de tu devolucion.
+                      Nuestro equipo analizará tu caso y te contactará a la
+                      brevedad con los detalles de tu devolución.
                     </p>
                     {resultado && (
                       <div className="mt-5 p-4 rounded-xl bg-primary-50 border border-primary-200">
                         <p className="text-xs text-text-muted">
-                          Devolucion estimada
+                          Devolución estimada
                         </p>
                         <p className="text-2xl font-bold text-primary-950 mt-1">
                           {formatCLP(resultado.total)}
@@ -947,15 +1139,28 @@ export default function Simulator() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2 hidden lg:block"
           >
+            {apiLoading && !resultado && step === 3 && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6"
+              >
+                <div className="bg-surface rounded-2xl p-6 border border-border-light shadow-lg shadow-primary-900/5 flex flex-col items-center justify-center py-10">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+                  <p className="text-sm font-medium text-primary-950">Calculando devolución...</p>
+                </div>
+              </motion.div>
+            )}
             {resultado && resultado.total > 0 && step === 3 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6"
               >
-                <div className="bg-surface rounded-2xl p-6 border border-border-light shadow-lg shadow-primary-900/5">
-                  <p className="text-sm text-text-muted mb-1">
-                    Tu devolucion estimada
+                <div className={`bg-surface rounded-2xl p-6 border border-border-light shadow-lg shadow-primary-900/5 transition-opacity ${apiLoading ? "opacity-60" : ""}`}>
+                  <p className="text-sm text-text-muted mb-1 flex items-center gap-2">
+                    Tu devolución estimada
+                    {apiLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />}
                   </p>
                   <p className="text-4xl font-bold text-primary-950 tracking-tight">
                     {formatCLP(resultado.total)}
@@ -974,7 +1179,7 @@ export default function Simulator() {
                     {resultado.deseAmount > 0 && (
                       <div className="flex justify-between items-center py-2.5 border-t border-border-light">
                         <span className="text-sm text-text-secondary">
-                          Cesantia
+                          Cesantía
                         </span>
                         <span className="text-sm font-semibold text-primary-950">
                           {formatCLP(resultado.deseAmount)}
@@ -984,12 +1189,12 @@ export default function Simulator() {
                   </div>
                   <div className="mt-3 pt-3 border-t border-border-light">
                     <p className="text-xs text-text-muted">
-                      Institucion: {form.nombre_institucion}
+                      Institución: {form.nombre_institucion}
                     </p>
                   </div>
                   <p className="mt-2 text-[10px] text-text-muted">
-                    * Monto referencial sujeto a confirmacion. El valor
-                    definitivo sera entregado en la evaluacion final.
+                    * Monto referencial sujeto a confirmación. El valor
+                    definitivo será entregado en la evaluación final.
                   </p>
                 </div>
               </motion.div>
@@ -997,10 +1202,10 @@ export default function Simulator() {
 
             <div className="space-y-3">
               {[
-                "Analisis gratuito y sin compromiso",
+                "Análisis gratuito y sin compromiso",
                 "Te contactamos en menos de 24 horas",
                 "Quedas con tu seguro vigente",
-                "No aplica para creditos hipotecarios",
+                "No aplica para créditos hipotecarios",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-accent-600 mt-0.5 shrink-0" />

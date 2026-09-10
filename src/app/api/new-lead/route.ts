@@ -31,10 +31,10 @@ export async function POST(req: NextRequest) {
 
     // Email al cliente
     await resend.emails.send({
-      from: "Movilidad Seguros <notificaciones@proppi.cl>",
+      from: "Movilidad Seguros <notificaciones@rebajatuseguro.cl>",
       to: email,
-      cc: "vicente.torres@proppi.cl",
-      subject: `${nombre}, tu simulacion de portabilidad esta lista`,
+      cc: "contacto@rebajatuseguro.cl",
+      subject: `${nombre}, tu simulación de portabilidad está lista`,
       html: `
 <!DOCTYPE html>
 <html>
@@ -52,21 +52,21 @@ export async function POST(req: NextRequest) {
       <div style="padding:32px 24px">
         <h2 style="color:#0c4a6e;font-size:18px;margin:0 0 8px">Hola ${nombre} ${apellido},</h2>
         <p style="color:#64748b;font-size:14px;line-height:1.6;margin:0 0 24px">
-          Recibimos tu simulacion de portabilidad de seguros. Aqui tienes un resumen de lo que podrias recuperar:
+          Recibimos tu simulación de portabilidad de seguros. Aquí tienes un resumen de lo que podrías recuperar:
         </p>
 
         <!-- Resultado -->
         <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
-          <p style="color:#64748b;font-size:12px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Devolucion estimada</p>
+          <p style="color:#64748b;font-size:12px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Devolución estimada</p>
           <p style="color:#0c4a6e;font-size:36px;font-weight:700;margin:0">${formatCLP(ahorro_estimado)}</p>
           ${desg_amount > 0 ? `<p style="color:#64748b;font-size:13px;margin:8px 0 0">Desgravamen: ${formatCLP(desg_amount)}</p>` : ""}
-          ${dese_amount > 0 ? `<p style="color:#64748b;font-size:13px;margin:4px 0 0">Cesantia: ${formatCLP(dese_amount)}</p>` : ""}
+          ${dese_amount > 0 ? `<p style="color:#64748b;font-size:13px;margin:4px 0 0">Cesantía: ${formatCLP(dese_amount)}</p>` : ""}
         </div>
 
         <!-- Detalles -->
         <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
           <tr>
-            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">Institucion</td>
+            <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#64748b;font-size:13px">Institución</td>
             <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#0c4a6e;font-size:13px;font-weight:600;text-align:right">${nombre_institucion}</td>
           </tr>
           <tr>
@@ -88,17 +88,17 @@ export async function POST(req: NextRequest) {
         </table>
 
         <p style="color:#64748b;font-size:14px;line-height:1.6;margin:0 0 24px">
-          Nuestro equipo analizara tu caso y te contactara a la brevedad para confirmar el monto exacto de tu devolucion.
+          Nuestro equipo analizará tu caso y te contactará a la brevedad para confirmar el monto exacto de tu devolución.
         </p>
 
         <div style="text-align:center">
-          <a href="https://movilidad-seguros.vercel.app/#contacto" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:14px;font-weight:600">Contactanos</a>
+          <a href="https://www.rebajatuseguro.cl/#contacto" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:14px;font-weight:600">Contáctanos</a>
         </div>
       </div>
 
       <!-- Footer -->
       <div style="padding:20px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center">
-        <p style="color:#94a3b8;font-size:11px;margin:0">* Monto referencial sujeto a confirmacion.</p>
+        <p style="color:#94a3b8;font-size:11px;margin:0">* Monto referencial sujeto a confirmación.</p>
         <p style="color:#94a3b8;font-size:11px;margin:4px 0 0">Movilidad Seguros | Apoquindo 6410, Of. 1404, Las Condes</p>
       </div>
     </div>

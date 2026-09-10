@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 const badges = [
   { icon: ShieldCheck, text: "100% Legal" },
-  { icon: Clock, text: "20 dias promedio" },
+  { icon: Clock, text: "20 días promedio" },
   { icon: Laptop, text: "100% Online" },
 ];
 
@@ -25,56 +25,46 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left content */}
           <div>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-50 border border-accent-200 text-sm text-accent-600 font-medium mb-8"
-            >
-              <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-              Portabilidad de seguros en Chile
-            </motion.div>
-
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.08 }}
+              transition={{ duration: 0.5 }}
               className="text-[2.5rem] sm:text-5xl lg:text-[3.5rem] font-bold text-primary-950 leading-[1.1] tracking-tight"
             >
               Recupera el dinero{" "}
               <span className="text-primary">de tus seguros</span> asociados a
-              creditos
+              créditos
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.16 }}
+              transition={{ duration: 0.5, delay: 0.08 }}
               className="mt-6 text-lg text-text-secondary max-w-xl leading-relaxed"
             >
-              Portamos tus seguros de creditos de consumo o automotriz,
-              devolviendo tu dinero de forma rapida, segura y completamente
+              Portamos tus seguros de créditos de consumo o automotriz,
+              devolviendo tu dinero de forma rápida, segura y completamente
               online. Sin letra chica.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.24 }}
+              transition={{ duration: 0.5, delay: 0.16 }}
               className="mt-8 flex flex-col sm:flex-row gap-4"
             >
               <a
                 href="#simulador"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full btn-primary text-base cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-primary text-base cursor-pointer"
               >
-                Simula tu devolucion
+                Simula tu devolución
                 <ArrowRight className="w-5 h-5" />
               </a>
               <a
                 href="#como-funciona"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-border text-text font-medium text-base hover:bg-primary-50 transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-border text-text font-medium text-base hover:bg-primary-50 transition-colors cursor-pointer"
               >
-                Como funciona
+                Cómo funciona
               </a>
             </motion.div>
 
@@ -122,12 +112,12 @@ export default function Hero() {
               <div className="space-y-4">
                 {[
                   {
-                    label: "Creditos de consumo",
+                    label: "Créditos de consumo",
                     pct: 65,
                     color: "bg-primary",
                   },
                   {
-                    label: "Creditos automotriz",
+                    label: "Créditos automotriz",
                     pct: 35,
                     color: "bg-primary-400",
                   },
@@ -154,8 +144,8 @@ export default function Hero() {
               <div className="mt-8 pt-6 border-t border-border-light grid grid-cols-3 gap-4">
                 {[
                   { v: "$850M+", l: "Devueltos" },
-                  { v: "20 dias", l: "Promedio" },
-                  { v: "98%", l: "Satisfaccion" },
+                  { v: "20 días", l: "Promedio" },
+                  { v: "98%", l: "Satisfacción" },
                 ].map((s) => (
                   <div key={s.l} className="text-center">
                     <p className="text-lg font-bold text-primary-900">{s.v}</p>

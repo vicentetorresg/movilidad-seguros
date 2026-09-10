@@ -7,11 +7,11 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <a href="#" className="flex items-center gap-2.5">
             <Image
-              src="/rebajatuseguro-logo.svg"
+              src="/rebajatuseguro-logo-white.svg"
               alt="Rebaja Tu Seguro"
               width={160}
               height={30}
-              className="h-7 w-auto brightness-0 invert"
+              className="h-7 w-auto"
             />
           </a>
 

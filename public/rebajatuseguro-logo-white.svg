@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 170" width="940" height="170" role="img" aria-label="RebajaTuSeguro">
+  <title>RebajaTuSeguro</title>
+  <g transform="translate(8,14)">
+    <path d="M20 28 L120 28 L120 80 C120 109 97 128 70 139 C43 128 20 109 20 80 Z" fill="#ffffff" stroke="#ffffff" stroke-width="14" stroke-linejoin="round"></path>
+    <rect x="59" y="26" width="22" height="40" rx="11" fill="#082F49"></rect>
+    <path d="M35 58 L105 58 L70 98 Z" fill="#082F49" stroke="#082F49" stroke-width="7" stroke-linejoin="round"></path>
+    <circle cx="114" cy="114" r="40" fill="#082F49"></circle>
+    <circle cx="114" cy="114" r="33" fill="#0E9E62"></circle>
+    <path d="M114 94 L114 134 M124 103 C124 98 119 95.5 114 95.5 C109 95.5 104.5 98 104.5 102.5 C104.5 107.5 109.5 109 114 110 C119 111 124 112.5 124 117.5 C124 122 119 124.5 114 124.5 C109 124.5 104 122 104 117" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+  </g>
+  <text x="196" y="86" dominant-baseline="central" font-family="Poppins, Helvetica, Arial, sans-serif" font-weight="600" font-size="88" letter-spacing="-1"><tspan fill="#ffffff">Rebaja</tspan><tspan fill="#0E9E62">Tu</tspan><tspan fill="#ffffff">Seguro</tspan></text>
+</svg>

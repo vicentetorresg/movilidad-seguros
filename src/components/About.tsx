@@ -71,7 +71,7 @@ export default function About() {
               <p className="text-primary-200 text-sm leading-relaxed mb-6">
                 Apoquindo 6410, Of. 1404
                 <br />
-                Las Condes, Santiago
+                🚇 Metro Manquehue · Las Condes, Santiago
               </p>
               <div className="pt-5 border-t border-primary-800 space-y-3">
                 <div>

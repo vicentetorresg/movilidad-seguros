@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -11,20 +11,87 @@ import {
   FileText,
   CreditCard,
   Car,
+  Building2,
+  Shield,
+  ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
-type Step = 1 | 2;
+type Step = 1 | 2 | 3;
 
 interface FormData {
   nombre: string;
   apellido: string;
   email: string;
   telefono: string;
-  tipo_credito: string;
   acepta_datos: boolean;
   acepta_portabilidad: boolean;
+  tipo_seguro: string;
+  tipo_institucion: string;
+  monto_original: number;
+  monto_pendiente: number;
+  cuotas_restantes: number;
+}
+
+const DEFAULTS = {
+  monto_original: 5000000,
+  monto_pendiente: 3000000,
+  cuotas_restantes: 24,
+};
+
+const formatCLP = (n: number) =>
+  new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0,
+  }).format(n);
+
+const formatNum = (n: number) =>
+  new Intl.NumberFormat("es-CL").format(n);
+
+// Calculo de devolucion:
+// Prima mensual estimada del seguro = % del saldo pendiente
+// Tasa desgravamen tipica: 0.028% a 0.045% mensual del saldo
+// Tasa cesantia tipica: 0.015% a 0.025% mensual del saldo
+// Al portar, la nueva prima es ~40-60% mas barata
+// Devolucion = prima_actual_mensual * cuotas_restantes * factor_ahorro
+function calcularDevolucion(
+  tipoSeguro: string,
+  montoOriginal: number,
+  montoPendiente: number,
+  cuotasRestantes: number,
+  tipoInstitucion: string
+) {
+  const tasaDesg =
+    tipoInstitucion === "automotriz" ? 0.00038 : 0.00035;
+  const tasaCes = 0.0002;
+
+  const primaDesgMensual = montoPendiente * tasaDesg;
+  const primaCesMensual = montoPendiente * tasaCes;
+
+  // Factor de ahorro por portabilidad (diferencia entre prima banco vs mercado)
+  const factorAhorro = tipoInstitucion === "automotriz" ? 0.45 : 0.5;
+
+  // Factor de ajuste por cuotas restantes (mas cuotas = mas devolucion proporcional)
+  const factorCuotas = Math.min(cuotasRestantes / 48, 1);
+  const ajuste = 0.85 + 0.15 * factorCuotas;
+
+  let desgAmount = 0;
+  let deseAmount = 0;
+
+  if (tipoSeguro === "desgravamen" || tipoSeguro === "ambos") {
+    desgAmount = Math.round(
+      primaDesgMensual * cuotasRestantes * factorAhorro * ajuste
+    );
+  }
+  if (tipoSeguro === "cesantia" || tipoSeguro === "ambos") {
+    deseAmount = Math.round(
+      primaCesMensual * cuotasRestantes * factorAhorro * ajuste
+    );
+  }
+
+  return { desgAmount, deseAmount, total: desgAmount + deseAmount };
 }
 
 export default function Simulator() {
@@ -36,13 +103,43 @@ export default function Simulator() {
     apellido: "",
     email: "",
     telefono: "",
-    tipo_credito: "",
     acepta_datos: false,
     acepta_portabilidad: false,
+    tipo_seguro: "",
+    tipo_institucion: "",
+    monto_original: DEFAULTS.monto_original,
+    monto_pendiente: DEFAULTS.monto_pendiente,
+    cuotas_restantes: DEFAULTS.cuotas_restantes,
   });
 
-  const set = (field: keyof FormData, value: string | boolean) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const set = useCallback(
+    (field: keyof FormData, value: string | boolean | number) =>
+      setForm((prev) => ({ ...prev, [field]: value })),
+    []
+  );
+
+  const resultado = useMemo(() => {
+    if (
+      !form.tipo_seguro ||
+      !form.tipo_institucion ||
+      form.monto_pendiente <= 0 ||
+      form.cuotas_restantes <= 0
+    )
+      return null;
+    return calcularDevolucion(
+      form.tipo_seguro,
+      form.monto_original,
+      form.monto_pendiente,
+      form.cuotas_restantes,
+      form.tipo_institucion
+    );
+  }, [
+    form.tipo_seguro,
+    form.tipo_institucion,
+    form.monto_original,
+    form.monto_pendiente,
+    form.cuotas_restantes,
+  ]);
 
   const canGoStep2 =
     form.nombre.trim() &&
@@ -52,7 +149,8 @@ export default function Simulator() {
     form.acepta_datos &&
     form.acepta_portabilidad;
 
-  const canSubmit = form.tipo_credito;
+  const canGoStep3 =
+    form.tipo_seguro && form.tipo_institucion;
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -62,7 +160,11 @@ export default function Simulator() {
         apellido: form.apellido.trim(),
         email: form.email.trim(),
         telefono: form.telefono.trim(),
-        tipo_credito: form.tipo_credito,
+        tipo_credito: form.tipo_institucion,
+        monto_credito: form.monto_original,
+        plazo_meses: form.cuotas_restantes,
+        prima_seguro: resultado?.total ?? 0,
+        ahorro_estimado: resultado?.total ?? 0,
       });
       setSubmitted(true);
     } catch {
@@ -75,36 +177,80 @@ export default function Simulator() {
   const inputClass =
     "w-full pl-11 pr-4 py-3.5 rounded-xl border border-border bg-surface text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm";
   const labelClass = "block text-sm font-medium text-text mb-1.5";
+  const sliderLabel = "text-sm font-medium text-text mb-2 flex justify-between items-center";
 
   return (
-    <section
-      id="simulador"
-      className="py-24 lg:py-32 bg-surface-tertiary"
-    >
+    <section id="simulador" className="py-24 lg:py-32 bg-surface-tertiary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left: Copy */}
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          {/* Left: copy + resultado en vivo */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary-100 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
-              Simulador
+              Simula tu Devolucion
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-primary-950 tracking-tight">
               Descubre en segundos cuanto podrias recuperar
             </h2>
             <p className="mt-4 text-text-secondary text-lg leading-relaxed">
-              Completa tus datos y nuestro equipo analizara tu caso para
-              entregarte una estimacion personalizada de tu devolucion.
+              Completa el simulador y obtendras una estimacion inmediata de tu
+              devolucion. Quedando asegurado.
             </p>
 
-            <div className="mt-8 space-y-4">
+            {/* Resultado en vivo */}
+            {resultado && resultado.total > 0 && step >= 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8"
+              >
+                <div className="bg-surface rounded-2xl p-6 border border-border-light shadow-lg shadow-primary-900/5">
+                  <p className="text-sm text-text-muted mb-1">
+                    Tu devolucion estimada
+                  </p>
+                  <p className="text-4xl sm:text-5xl font-bold text-primary-950 tracking-tight">
+                    {formatCLP(resultado.total)}
+                  </p>
+
+                  <div className="mt-4 space-y-2">
+                    {resultado.desgAmount > 0 && (
+                      <div className="flex justify-between items-center py-2 border-t border-border-light">
+                        <span className="text-sm text-text-secondary">
+                          Desgravamen
+                        </span>
+                        <span className="text-sm font-semibold text-primary-950">
+                          {formatCLP(resultado.desgAmount)}
+                        </span>
+                      </div>
+                    )}
+                    {resultado.deseAmount > 0 && (
+                      <div className="flex justify-between items-center py-2 border-t border-border-light">
+                        <span className="text-sm text-text-secondary">
+                          Cesantia
+                        </span>
+                        <span className="text-sm font-semibold text-primary-950">
+                          {formatCLP(resultado.deseAmount)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="mt-3 text-xs text-text-muted">
+                    Monto referencial sujeto a confirmacion.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Beneficios */}
+            <div className="mt-8 space-y-3">
               {[
                 "Analisis gratuito y sin compromiso",
                 "Te contactamos en menos de 24 horas",
-                "Quedas con tu seguro vigente, sin perder cobertura",
+                "Quedas con tu seguro vigente",
                 "No aplica para creditos hipotecarios",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -127,32 +273,34 @@ export default function Simulator() {
             <div className="bg-surface rounded-2xl p-8 sm:p-10 border border-border-light shadow-xl shadow-primary-900/5">
               {/* Progress */}
               {!submitted && (
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-text-inverse">
-                      1
-                    </div>
-                    <div className="flex-1 h-1 rounded-full bg-primary-200">
+                <div className="flex items-center gap-2 mb-8">
+                  {[1, 2, 3].map((s) => (
+                    <div key={s} className="flex items-center gap-2 flex-1">
                       <div
-                        className={`h-full rounded-full bg-primary transition-all duration-500 ${
-                          step >= 2 ? "w-full" : "w-0"
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+                          step >= s
+                            ? "bg-primary text-text-inverse"
+                            : "bg-primary-100 text-text-muted"
                         }`}
-                      />
+                      >
+                        {s}
+                      </div>
+                      {s < 3 && (
+                        <div className="flex-1 h-1 rounded-full bg-primary-100">
+                          <div
+                            className={`h-full rounded-full bg-primary transition-all duration-500 ${
+                              step > s ? "w-full" : "w-0"
+                            }`}
+                          />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                      step >= 2
-                        ? "bg-primary text-text-inverse"
-                        : "bg-primary-100 text-text-muted"
-                    }`}
-                  >
-                    2
-                  </div>
+                  ))}
                 </div>
               )}
 
               <AnimatePresence mode="wait">
+                {/* PASO 1: Datos personales */}
                 {step === 1 && !submitted && (
                   <motion.div
                     key="step1"
@@ -162,7 +310,7 @@ export default function Simulator() {
                     transition={{ duration: 0.25 }}
                   >
                     <h3 className="text-lg font-bold text-primary-950 mb-1">
-                      Paso 1 de 2
+                      Paso 1 de 3: Tus datos
                     </h3>
                     <p className="text-sm text-text-muted mb-6">
                       Ingresa tus datos personales
@@ -197,9 +345,8 @@ export default function Simulator() {
                           </div>
                         </div>
                       </div>
-
                       <div>
-                        <label className={labelClass}>Telefono de contacto</label>
+                        <label className={labelClass}>Telefono</label>
                         <div className="relative">
                           <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                           <input
@@ -211,7 +358,6 @@ export default function Simulator() {
                           />
                         </div>
                       </div>
-
                       <div>
                         <label className={labelClass}>Correo electronico</label>
                         <div className="relative">
@@ -235,11 +381,10 @@ export default function Simulator() {
                           onChange={(e) =>
                             set("acepta_datos", e.target.checked)
                           }
-                          className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-primary"
+                          className="mt-1 w-4 h-4 rounded accent-primary cursor-pointer"
                         />
                         <span className="text-xs text-text-muted leading-relaxed">
-                          Autorizo el tratamiento de mis datos personales segun
-                          la politica de privacidad.
+                          Autorizo el tratamiento de mis datos personales.
                         </span>
                       </label>
                       <label className="flex items-start gap-3 cursor-pointer">
@@ -249,11 +394,11 @@ export default function Simulator() {
                           onChange={(e) =>
                             set("acepta_portabilidad", e.target.checked)
                           }
-                          className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-primary"
+                          className="mt-1 w-4 h-4 rounded accent-primary cursor-pointer"
                         />
                         <span className="text-xs text-text-muted leading-relaxed">
-                          Autorizo el tratamiento de datos para portabilidad y
-                          promocion de seguros.
+                          Autorizo tratamiento para portabilidad y promocion de
+                          seguros.
                         </span>
                       </label>
                     </div>
@@ -261,7 +406,7 @@ export default function Simulator() {
                     <button
                       disabled={!canGoStep2}
                       onClick={() => setStep(2)}
-                      className="mt-6 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
+                      className="mt-6 w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Continuar
                       <ArrowRight className="w-5 h-5" />
@@ -269,6 +414,7 @@ export default function Simulator() {
                   </motion.div>
                 )}
 
+                {/* PASO 2: Tipo de seguro + institucion */}
                 {step === 2 && !submitted && (
                   <motion.div
                     key="step2"
@@ -278,81 +424,61 @@ export default function Simulator() {
                     transition={{ duration: 0.25 }}
                   >
                     <h3 className="text-lg font-bold text-primary-950 mb-1">
-                      Paso 2 de 2
+                      Paso 2 de 3: Tu seguro
                     </h3>
                     <p className="text-sm text-text-muted mb-6">
-                      Selecciona tu tipo de credito
+                      Selecciona el seguro que quieres portar
                     </p>
 
-                    <div className="space-y-3">
-                      {[
-                        {
-                          value: "consumo",
-                          label: "Credito de consumo",
-                          desc: "Creditos personales, avances, lineas de credito",
-                          icon: CreditCard,
-                        },
-                        {
-                          value: "automotriz",
-                          label: "Credito automotriz",
-                          desc: "Financiamiento de vehiculos nuevos o usados",
-                          icon: Car,
-                        },
-                      ].map((opt) => (
-                        <label
-                          key={opt.value}
-                          className={`flex items-center gap-4 p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                            form.tipo_credito === opt.value
-                              ? "border-primary bg-primary-50 shadow-sm"
-                              : "border-border-light hover:border-primary-200 hover:bg-primary-50/50"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="tipo_credito"
-                            value={opt.value}
-                            checked={form.tipo_credito === opt.value}
-                            onChange={(e) =>
-                              set("tipo_credito", e.target.value)
-                            }
-                            className="sr-only"
-                          />
-                          <div
-                            className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                              form.tipo_credito === opt.value
-                                ? "bg-primary text-text-inverse"
-                                : "bg-primary-100 text-primary"
-                            }`}
-                          >
-                            <opt.icon className="w-5 h-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-primary-950 text-sm">
+                    <div className="space-y-5">
+                      {/* Tipo de seguro */}
+                      <div>
+                        <label className={labelClass}>Tipo de seguro</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: "desgravamen", label: "Desgravamen" },
+                            { value: "cesantia", label: "Cesantia" },
+                            { value: "ambos", label: "Ambos" },
+                          ].map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => set("tipo_seguro", opt.value)}
+                              className={`py-3 px-3 rounded-xl text-sm font-medium border-2 transition-all cursor-pointer ${
+                                form.tipo_seguro === opt.value
+                                  ? "border-primary bg-primary-50 text-primary"
+                                  : "border-border-light text-text-secondary hover:border-primary-200"
+                              }`}
+                            >
                               {opt.label}
-                            </p>
-                            <p className="text-xs text-text-muted mt-0.5">
-                              {opt.desc}
-                            </p>
-                          </div>
-                          <div
-                            className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                              form.tipo_credito === opt.value
-                                ? "border-primary bg-primary"
-                                : "border-border"
-                            }`}
-                          >
-                            {form.tipo_credito === opt.value && (
-                              <div className="w-2 h-2 rounded-full bg-text-inverse" />
-                            )}
-                          </div>
-                        </label>
-                      ))}
-                    </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                    <p className="mt-4 text-xs text-text-muted flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5" />
-                      No aplica para creditos hipotecarios
-                    </p>
+                      {/* Tipo de institucion */}
+                      <div>
+                        <label className={labelClass}>
+                          Tipo de institucion
+                        </label>
+                        <div className="relative">
+                          <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                          <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+                          <select
+                            value={form.tipo_institucion}
+                            onChange={(e) =>
+                              set("tipo_institucion", e.target.value)
+                            }
+                            className={`${inputClass} appearance-none cursor-pointer`}
+                          >
+                            <option value="">Selecciona</option>
+                            <option value="banco">Banco</option>
+                            <option value="cooperativa">Cooperativa</option>
+                            <option value="automotriz">Automotriz</option>
+                            <option value="otros">Otros</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="mt-6 flex gap-3">
                       <button
@@ -362,9 +488,152 @@ export default function Simulator() {
                         Atras
                       </button>
                       <button
-                        disabled={!canSubmit || loading}
+                        disabled={!canGoStep3}
+                        onClick={() => setStep(3)}
+                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        Continuar
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* PASO 3: Simulador con sliders */}
+                {step === 3 && !submitted && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <h3 className="text-lg font-bold text-primary-950 mb-1">
+                      Paso 3 de 3: Simulador
+                    </h3>
+                    <p className="text-sm text-text-muted mb-6">
+                      Ajusta los montos de tu credito
+                    </p>
+
+                    <div className="space-y-6">
+                      {/* Monto original */}
+                      <div>
+                        <div className={sliderLabel}>
+                          <span>Monto solicitado original</span>
+                          <span className="font-bold text-primary-950">
+                            {formatCLP(form.monto_original)}
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min={1500000}
+                          max={300000000}
+                          step={500000}
+                          value={form.monto_original}
+                          onChange={(e) => {
+                            const v = Number(e.target.value);
+                            set("monto_original", v);
+                            if (form.monto_pendiente > v)
+                              set("monto_pendiente", v);
+                          }}
+                          className="w-full h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
+                        />
+                        <div className="flex justify-between text-xs text-text-muted mt-1">
+                          <span>$1.500.000</span>
+                          <span>$300.000.000</span>
+                        </div>
+                      </div>
+
+                      {/* Monto pendiente */}
+                      <div>
+                        <div className={sliderLabel}>
+                          <span>Monto que te queda por pagar</span>
+                          <span className="font-bold text-primary-950">
+                            {formatCLP(form.monto_pendiente)}
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min={1000000}
+                          max={form.monto_original}
+                          step={500000}
+                          value={Math.min(
+                            form.monto_pendiente,
+                            form.monto_original
+                          )}
+                          onChange={(e) =>
+                            set("monto_pendiente", Number(e.target.value))
+                          }
+                          className="w-full h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
+                        />
+                        <div className="flex justify-between text-xs text-text-muted mt-1">
+                          <span>$1.000.000</span>
+                          <span>{formatCLP(form.monto_original)}</span>
+                        </div>
+                      </div>
+
+                      {/* Cuotas restantes */}
+                      <div>
+                        <div className={sliderLabel}>
+                          <span>Cuotas que te quedan por pagar</span>
+                          <span className="font-bold text-primary-950">
+                            {formatNum(form.cuotas_restantes)} cuotas
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min={6}
+                          max={240}
+                          step={1}
+                          value={form.cuotas_restantes}
+                          onChange={(e) =>
+                            set("cuotas_restantes", Number(e.target.value))
+                          }
+                          className="w-full h-2 rounded-full appearance-none bg-primary-100 accent-primary cursor-pointer"
+                        />
+                        <div className="flex justify-between text-xs text-text-muted mt-1">
+                          <span>6 cuotas</span>
+                          <span>240 cuotas</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Resultado inline (mobile) */}
+                    {resultado && resultado.total > 0 && (
+                      <div className="mt-6 p-5 rounded-xl bg-primary-50 border border-primary-200 lg:hidden">
+                        <p className="text-xs text-text-muted mb-1">
+                          Tu devolucion estimada
+                        </p>
+                        <p className="text-3xl font-bold text-primary-950">
+                          {formatCLP(resultado.total)}
+                        </p>
+                        {resultado.desgAmount > 0 && (
+                          <p className="text-xs text-text-secondary mt-1">
+                            Desgravamen: {formatCLP(resultado.desgAmount)}
+                          </p>
+                        )}
+                        {resultado.deseAmount > 0 && (
+                          <p className="text-xs text-text-secondary">
+                            Cesantia: {formatCLP(resultado.deseAmount)}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-text-muted mt-2">
+                          Monto referencial sujeto a confirmacion.
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-6 flex gap-3">
+                      <button
+                        onClick={() => setStep(2)}
+                        className="px-5 py-4 rounded-xl font-semibold text-text-secondary bg-surface border border-border hover:bg-surface-secondary transition-colors cursor-pointer"
+                      >
+                        Atras
+                      </button>
+                      <button
+                        disabled={loading || !resultado || resultado.total <= 0}
                         onClick={handleSubmit}
-                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
+                        className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       >
                         {loading ? (
                           <>
@@ -373,7 +642,7 @@ export default function Simulator() {
                           </>
                         ) : (
                           <>
-                            Solicitar simulacion
+                            Solicitar portabilidad
                             <ArrowRight className="w-5 h-5" />
                           </>
                         )}
@@ -382,6 +651,7 @@ export default function Simulator() {
                   </motion.div>
                 )}
 
+                {/* Exito */}
                 {submitted && (
                   <motion.div
                     key="success"
@@ -398,13 +668,18 @@ export default function Simulator() {
                     </h3>
                     <p className="text-text-secondary max-w-sm mx-auto leading-relaxed">
                       Nuestro equipo analizara tu caso y te contactara a la
-                      brevedad con tu estimacion personalizada.
+                      brevedad.
                     </p>
-                    <div className="mt-6 p-4 rounded-xl bg-primary-50 border border-primary-200">
-                      <p className="text-sm text-primary font-medium">
-                        Revisa tu correo electronico en las proximas 24 horas
-                      </p>
-                    </div>
+                    {resultado && (
+                      <div className="mt-6 p-5 rounded-xl bg-primary-50 border border-primary-200">
+                        <p className="text-sm text-text-muted">
+                          Devolucion estimada
+                        </p>
+                        <p className="text-3xl font-bold text-primary-950">
+                          {formatCLP(resultado.total)}
+                        </p>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

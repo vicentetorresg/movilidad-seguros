@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ShieldCheck, Clock, Laptop, TrendingUp } from "lucide-react";
+import { ArrowRight, ShieldCheck, Clock, Laptop } from "lucide-react";
 import { motion } from "framer-motion";
 
 const badges = [
@@ -9,7 +9,6 @@ const badges = [
   { icon: Laptop, text: "100% Online" },
 ];
 
-const counter = { value: "+2.500", label: "personas ya portaron sus seguros" };
 
 export default function Hero() {
   return (
@@ -85,9 +84,44 @@ export default function Hero() {
                 </div>
               ))}
             </motion.div>
+
+            {/* Mobile case study */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mt-8 lg:hidden glass-card rounded-2xl p-5 shadow-lg shadow-primary-900/5"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-primary-950 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                  CM
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-primary-950">Carlos M.</p>
+                  <p className="text-xs text-text-muted">Santiago · Crédito de consumo</p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse" />
+                  <span className="text-xs font-medium text-accent-600">Caso real</span>
+                </div>
+              </div>
+              <p className="text-sm text-text-secondary leading-relaxed mb-3">
+                Pagaba un seguro de desgravamen incluido en la cuota de su crédito. Al portar su seguro, recuperó la diferencia acumulada.
+              </p>
+              <div className="flex items-center justify-between bg-accent-50 rounded-xl px-4 py-3">
+                <div>
+                  <p className="text-xs text-accent-600 font-medium">Devolución obtenida</p>
+                  <p className="text-2xl font-bold text-accent-600 tracking-tight">$985.985</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-text-muted">Proceso</p>
+                  <p className="text-sm font-semibold text-primary-900">12 días · $0 costo</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
-          {/* Right: Stats card */}
+          {/* Right: Case study card */}
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -95,57 +129,50 @@ export default function Hero() {
             className="hidden lg:block"
           >
             <div className="glass-card rounded-3xl p-8 shadow-xl shadow-primary-900/5">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-text-inverse" />
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
+                <p className="text-sm font-medium text-accent-600">
+                  Caso real
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-full bg-primary-950 flex items-center justify-center text-xl font-bold text-white shrink-0">
+                  CM
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-text-muted">
-                    Ya han confiado en nosotros
+                  <p className="font-semibold text-primary-950">
+                    Carlos M.
                   </p>
-                  <p className="text-2xl font-bold text-primary-900">
-                    {counter.value}
+                  <p className="text-sm text-text-muted">
+                    Santiago, Región Metropolitana
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {[
-                  {
-                    label: "Créditos de consumo",
-                    pct: 65,
-                    color: "bg-primary",
-                  },
-                  {
-                    label: "Créditos automotriz",
-                    pct: 35,
-                    color: "bg-primary-400",
-                  },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="font-medium text-text">
-                        {item.label}
-                      </span>
-                      <span className="text-text-muted">{item.pct}%</span>
-                    </div>
-                    <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${item.pct}%` }}
-                        transition={{ duration: 1, delay: 0.8 }}
-                        className={`h-full ${item.color} rounded-full`}
-                      />
-                    </div>
-                  </div>
-                ))}
+              <p className="text-text-secondary text-[15px] leading-relaxed mb-6">
+                Carlos tenía un crédito de consumo con su banco y pagaba un seguro de desgravamen
+                incluido en la cuota. Al portar su seguro con nosotros, obtuvo una póliza más
+                económica y recuperó la diferencia acumulada.
+              </p>
+
+              <div className="bg-accent-50 rounded-2xl p-5 mb-6">
+                <p className="text-sm text-accent-600 font-medium mb-1">
+                  Devolución obtenida
+                </p>
+                <p className="text-3xl font-bold text-accent-600 tracking-tight">
+                  $985.985
+                </p>
+                <p className="text-xs text-text-muted mt-1">
+                  Crédito de consumo · Seguro de desgravamen
+                </p>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-border-light grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4 pt-5 border-t border-border-light">
                 {[
-                  { v: "$850M+", l: "Devueltos" },
-                  { v: "20 días", l: "Promedio" },
-                  { v: "98%", l: "Satisfacción" },
+                  { v: "12 días", l: "Tiempo del proceso" },
+                  { v: "$0", l: "Costo para Carlos" },
+                  { v: "100%", l: "Online" },
                 ].map((s) => (
                   <div key={s.l} className="text-center">
                     <p className="text-lg font-bold text-primary-900">{s.v}</p>

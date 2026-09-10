@@ -36,7 +36,7 @@ export default function Navbar() {
               alt="Rebaja Tu Seguro"
               width={180}
               height={34}
-              className="h-8 w-auto"
+              className="h-6 sm:h-8 w-auto"
               priority
             />
           </a>

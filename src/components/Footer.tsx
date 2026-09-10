@@ -35,19 +35,22 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-primary-900 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-primary-400">
-            &copy; {new Date().getFullYear()} Movilidad Seguros — Todos los
-            derechos reservados.
-          </p>
+          <div className="text-xs text-primary-400 text-center sm:text-left">
+            <p>
+              &copy; {new Date().getFullYear()} Fortex Corredora de Seguros SpA
+              — RUT 78.452.756-5
+            </p>
+            <p className="mt-0.5">Todos los derechos reservados.</p>
+          </div>
           <div className="flex gap-6 text-xs text-primary-400">
             <a
-              href="#"
+              href="/privacidad"
               className="hover:text-primary-200 transition-colors cursor-pointer"
             >
               Política de privacidad
             </a>
             <a
-              href="#"
+              href="/terminos"
               className="hover:text-primary-200 transition-colors cursor-pointer"
             >
               Términos y condiciones

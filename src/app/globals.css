@@ -68,3 +68,39 @@ body {
   transition: all 200ms ease-out;
   cursor: pointer;
 }
+
+.prose-legal h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-primary-950);
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-legal p {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+}
+
+.prose-legal ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.prose-legal li {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.prose-legal a {
+  color: var(--color-primary);
+}
+
+.prose-legal a:hover {
+  text-decoration: underline;
+}

@@ -594,8 +594,13 @@ export default function Simulator() {
   const labelClass = "block text-sm font-medium text-text mb-1.5";
 
   return (
-    <section id="simulador" className="py-20 lg:py-32 bg-surface-tertiary">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="simulador" className="relative py-20 lg:py-32 overflow-hidden">
+      {/* Dark gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-700/20 rounded-full blur-[120px] -translate-y-1/4 translate-x-1/4" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] translate-y-1/4 -translate-x-1/4" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -603,10 +608,10 @@ export default function Simulator() {
           viewport={{ once: true }}
           className="text-center max-w-2xl mx-auto mb-12 lg:mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-primary-950 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
             Descubre cuánto podrías recuperar
           </h2>
-          <p className="mt-3 text-text-secondary text-lg">
+          <p className="mt-4 text-primary-200 text-lg">
             Completa 3 simples pasos y obtendrás una estimación inmediata.
           </p>
         </motion.div>
@@ -1145,9 +1150,9 @@ export default function Simulator() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6"
               >
-                <div className="bg-surface rounded-2xl p-6 border border-border-light shadow-lg shadow-primary-900/5 flex flex-col items-center justify-center py-10">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
-                  <p className="text-sm font-medium text-primary-950">Calculando devolución...</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10 flex flex-col items-center justify-center py-10">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary-300 mb-3" />
+                  <p className="text-sm font-medium text-white">Calculando devolución...</p>
                 </div>
               </motion.div>
             )}
@@ -1157,42 +1162,42 @@ export default function Simulator() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6"
               >
-                <div className={`bg-surface rounded-2xl p-6 border border-border-light shadow-lg shadow-primary-900/5 transition-opacity ${apiLoading ? "opacity-60" : ""}`}>
-                  <p className="text-sm text-text-muted mb-1 flex items-center gap-2">
+                <div className={`bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10 transition-opacity ${apiLoading ? "opacity-60" : ""}`}>
+                  <p className="text-sm text-primary-300 mb-1 flex items-center gap-2">
                     Tu devolución estimada
-                    {apiLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />}
+                    {apiLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary-300" />}
                   </p>
-                  <p className="text-4xl font-bold text-primary-950 tracking-tight">
+                  <p className="text-4xl font-bold text-white tracking-tight">
                     {formatCLP(resultado.total)}
                   </p>
                   <div className="mt-4">
                     {resultado.desgAmount > 0 && (
-                      <div className="flex justify-between items-center py-2.5 border-t border-border-light">
-                        <span className="text-sm text-text-secondary">
+                      <div className="flex justify-between items-center py-2.5 border-t border-white/10">
+                        <span className="text-sm text-primary-200">
                           Desgravamen
                         </span>
-                        <span className="text-sm font-semibold text-primary-950">
+                        <span className="text-sm font-semibold text-white">
                           {formatCLP(resultado.desgAmount)}
                         </span>
                       </div>
                     )}
                     {resultado.deseAmount > 0 && (
-                      <div className="flex justify-between items-center py-2.5 border-t border-border-light">
-                        <span className="text-sm text-text-secondary">
+                      <div className="flex justify-between items-center py-2.5 border-t border-white/10">
+                        <span className="text-sm text-primary-200">
                           Cesantía
                         </span>
-                        <span className="text-sm font-semibold text-primary-950">
+                        <span className="text-sm font-semibold text-white">
                           {formatCLP(resultado.deseAmount)}
                         </span>
                       </div>
                     )}
                   </div>
-                  <div className="mt-3 pt-3 border-t border-border-light">
-                    <p className="text-xs text-text-muted">
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <p className="text-xs text-primary-300">
                       Institución: {form.nombre_institucion}
                     </p>
                   </div>
-                  <p className="mt-2 text-[10px] text-text-muted">
+                  <p className="mt-2 text-[10px] text-primary-400">
                     * Monto referencial sujeto a confirmación. El valor
                     definitivo será entregado en la evaluación final.
                   </p>
@@ -1208,8 +1213,8 @@ export default function Simulator() {
                 "No aplica para créditos hipotecarios",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-accent-600 mt-0.5 shrink-0" />
-                  <span className="text-text-secondary text-sm">{item}</span>
+                  <CheckCircle2 className="w-5 h-5 text-accent-500 mt-0.5 shrink-0" />
+                  <span className="text-primary-200 text-sm">{item}</span>
                 </div>
               ))}
             </div>

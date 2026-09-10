@@ -1,18 +1,43 @@
 "use client";
 
-import { MapPin, Phone, Mail, MessageCircle, ArrowRight } from "lucide-react";
+import { ArrowRight, Phone, Mail, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+
+const channels = [
+  {
+    icon: Phone,
+    title: "Teléfono",
+    detail: "+56 9 9431 3356",
+    href: "tel:+56994313356",
+  },
+  {
+    icon: Mail,
+    title: "Email",
+    detail: "contacto@rebajatuseguro.cl",
+    href: "mailto:contacto@rebajatuseguro.cl",
+  },
+  {
+    icon: MessageCircle,
+    title: "WhatsApp",
+    detail: "Escríbenos directo",
+    href: "https://wa.me/56994313356?text=Hola%2C%20quiero%20información%20sobre%20portabilidad%20de%20seguros",
+  },
+];
 
 export default function Contact() {
   return (
-    <section id="contacto" className="py-24 lg:py-32 bg-surface">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section id="contacto" className="py-24 lg:py-32 bg-surface relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-surface-secondary/50 to-surface" />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, x: -16 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
+            <p className="text-primary-600 text-sm font-semibold tracking-wide uppercase mb-3">
+              Contacto
+            </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-primary-950 tracking-tight">
               Conversemos sobre tu caso
             </h2>
@@ -30,44 +55,28 @@ export default function Contact() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 16 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 gap-4"
+            transition={{ delay: 0.15 }}
+            className="mt-14 grid sm:grid-cols-3 gap-4"
           >
-            {[
-              {
-                icon: MapPin,
-                title: "Oficina",
-                detail: "Apoquindo 6410, Of. 1404, Las Condes",
-              },
-              {
-                icon: Phone,
-                title: "Teléfono",
-                detail: "+56 9 0000 0000",
-              },
-              {
-                icon: Mail,
-                title: "Email",
-                detail: "contacto@rebajatuseguro.cl",
-              },
-              {
-                icon: MessageCircle,
-                title: "WhatsApp",
-                detail: "Escríbenos directo",
-              },
-            ].map((item) => (
-              <div
+            {channels.map((item) => (
+              <a
                 key={item.title}
-                className="p-5 rounded-xl bg-surface-secondary"
+                href={item.href}
+                target={item.href.startsWith("http") ? "_blank" : undefined}
+                rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="group p-6 rounded-2xl bg-surface border border-border-light hover:border-primary-200 hover:shadow-xl hover:shadow-primary-900/5 transition-all duration-300 cursor-pointer"
               >
-                <item.icon className="w-5 h-5 text-primary mb-3" />
+                <div className="w-11 h-11 rounded-xl bg-primary-50 group-hover:bg-primary flex items-center justify-center transition-colors duration-300 mx-auto mb-4">
+                  <item.icon className="w-5 h-5 text-primary-600 group-hover:text-white transition-colors duration-300" />
+                </div>
                 <p className="font-semibold text-primary-950 text-sm">
                   {item.title}
                 </p>
                 <p className="text-text-muted text-sm mt-1">{item.detail}</p>
-              </div>
+              </a>
             ))}
           </motion.div>
         </div>

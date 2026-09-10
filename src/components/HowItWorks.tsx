@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, PenTool, Banknote } from "lucide-react";
+import { FileText, PenTool, Banknote, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const steps = [
@@ -35,17 +35,20 @@ export default function HowItWorks() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-2xl mb-14"
+          className="text-center max-w-2xl mx-auto mb-16"
         >
+          <p className="text-primary-600 text-sm font-semibold tracking-wide uppercase mb-3">
+            Proceso simple
+          </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-primary-950 tracking-tight">
             3 pasos para recuperar tu dinero
           </h2>
-          <p className="mt-3 text-text-secondary text-lg">
+          <p className="mt-4 text-text-secondary text-lg">
             Todo digital. Sin filas, sin papeles, sin complicaciones.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-0">
+        <div className="grid md:grid-cols-3 gap-8">
           {steps.map((s, i) => (
             <motion.div
               key={s.step}
@@ -55,15 +58,16 @@ export default function HowItWorks() {
               transition={{ duration: 0.5, delay: i * 0.15 }}
               className="relative group"
             >
-              <div className="p-8 h-full border-t-2 border-primary-100 group-hover:border-primary transition-colors duration-300">
-                <div className="flex items-center gap-4 mb-5">
-                  <span className="text-4xl font-black text-primary-200 group-hover:text-primary-400 transition-colors select-none">
-                    {s.step}
-                  </span>
-                  <div className="w-11 h-11 rounded-xl bg-primary-950 flex items-center justify-center">
-                    <s.icon className="w-5 h-5 text-white" />
-                  </div>
+              <div className="relative p-8 rounded-2xl bg-surface border border-border-light hover:border-primary-200 hover:shadow-xl hover:shadow-primary-900/5 transition-all duration-300">
+                {/* Step number */}
+                <span className="absolute -top-4 left-8 px-3 py-1 text-xs font-bold tracking-wider text-primary-600 bg-primary-50 rounded-full border border-primary-100">
+                  PASO {s.step}
+                </span>
+
+                <div className="w-12 h-12 rounded-2xl bg-primary-950 flex items-center justify-center mt-2 mb-5">
+                  <s.icon className="w-5 h-5 text-white" />
                 </div>
+
                 <h3 className="text-lg font-bold text-primary-950 mb-2">
                   {s.title}
                 </h3>
@@ -71,6 +75,13 @@ export default function HowItWorks() {
                   {s.description}
                 </p>
               </div>
+
+              {/* Arrow connector (hidden on mobile and last item) */}
+              {i < steps.length - 1 && (
+                <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center">
+                  <ArrowRight className="w-4 h-4 text-primary-300" />
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

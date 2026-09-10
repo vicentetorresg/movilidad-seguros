@@ -1,41 +1,41 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Insurance Platform palette: Security blue + protected green */
-  --color-primary: #0369A1;
-  --color-primary-light: #0EA5E9;
-  --color-primary-50: #F0F9FF;
-  --color-primary-100: #E0F2FE;
-  --color-primary-200: #BAE6FD;
-  --color-primary-300: #7DD3FC;
-  --color-primary-400: #38BDF8;
-  --color-primary-500: #0EA5E9;
-  --color-primary-600: #0284C7;
-  --color-primary-700: #0369A1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0C4A6E;
-  --color-primary-950: #082F49;
+  /* Premium insurtech palette */
+  --color-primary: #1d4ed8;
+  --color-primary-light: #3b82f6;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #0f1d3d;
 
-  --color-accent: #16A34A;
-  --color-accent-50: #F0FDF4;
-  --color-accent-100: #DCFCE7;
-  --color-accent-200: #BBF7D0;
-  --color-accent-500: #22C55E;
-  --color-accent-600: #16A34A;
+  --color-accent: #059669;
+  --color-accent-50: #ecfdf5;
+  --color-accent-100: #d1fae5;
+  --color-accent-200: #a7f3d0;
+  --color-accent-500: #10b981;
+  --color-accent-600: #059669;
 
-  --color-surface: #FFFFFF;
-  --color-surface-secondary: #F8FAFC;
-  --color-surface-tertiary: #F0F9FF;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f8fafc;
+  --color-surface-tertiary: #f1f5f9;
 
-  --color-border: #E2E8F0;
-  --color-border-light: #F1F5F9;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
 
-  --color-text: #0C4A6E;
-  --color-text-secondary: #64748B;
-  --color-text-muted: #94A3B8;
-  --color-text-inverse: #FFFFFF;
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #ffffff;
 
-  --color-destructive: #DC2626;
+  --color-destructive: #dc2626;
 
   --font-sans: var(--font-ibm), system-ui, sans-serif;
 }
@@ -50,23 +50,29 @@ body {
 }
 
 @utility glass-nav {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
 }
 
 @utility glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
 @utility btn-primary {
-  background: linear-gradient(135deg, #0369A1 0%, #0284C7 50%, #0EA5E9 100%);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+  color: #ffffff;
   font-weight: 600;
   transition: all 200ms ease-out;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.2), 0 4px 12px rgba(29, 78, 216, 0.15);
+  &:hover {
+    box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25), 0 8px 24px rgba(29, 78, 216, 0.2);
+    transform: translateY(-1px);
+  }
 }
 
 .prose-legal h2 {

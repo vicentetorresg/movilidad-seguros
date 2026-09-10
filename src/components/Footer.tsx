@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-950">
+    <footer className="bg-primary-950 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <a href="#" className="flex items-center gap-2.5">
@@ -15,7 +15,7 @@ export default function Footer() {
             />
           </a>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-primary-300">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-primary-400">
             {[
               ["#simulador", "Simulador"],
               ["#como-funciona", "Cómo funciona"],
@@ -26,7 +26,7 @@ export default function Footer() {
               <a
                 key={href}
                 href={href}
-                className="hover:text-text-inverse transition-colors cursor-pointer"
+                className="hover:text-white transition-colors cursor-pointer"
               >
                 {label}
               </a>
@@ -34,8 +34,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-primary-900 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-primary-400 text-center sm:text-left">
+        <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-xs text-primary-500 text-center sm:text-left">
             <p>
               &copy; {new Date().getFullYear()} Fortex Corredora de Seguros SpA
               — RUT 78.452.756-5
@@ -44,16 +44,16 @@ export default function Footer() {
               Rebaja Tu Seguro es una marca de Fortex Corredora de Seguros SpA. Todos los derechos reservados.
             </p>
           </div>
-          <div className="flex gap-6 text-xs text-primary-400">
+          <div className="flex gap-6 text-xs text-primary-500">
             <a
               href="/privacidad"
-              className="hover:text-primary-200 transition-colors cursor-pointer"
+              className="hover:text-primary-300 transition-colors cursor-pointer"
             >
               Política de privacidad
             </a>
             <a
               href="/terminos"
-              className="hover:text-primary-200 transition-colors cursor-pointer"
+              className="hover:text-primary-300 transition-colors cursor-pointer"
             >
               Términos y condiciones
             </a>

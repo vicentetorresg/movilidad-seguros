@@ -50,12 +50,9 @@ const formatCLP = (n: number) =>
 const formatNum = (n: number) =>
   new Intl.NumberFormat("es-CL").format(n);
 
-// Calculo de devolucion:
-// Prima mensual estimada del seguro = % del saldo pendiente
-// Tasa desgravamen tipica: 0.028% a 0.045% mensual del saldo
-// Tasa cesantia tipica: 0.015% a 0.025% mensual del saldo
-// Al portar, la nueva prima es ~40-60% mas barata
-// Devolucion = prima_actual_mensual * cuotas_restantes * factor_ahorro
+// Calculo de devolucion calibrado con datos de mercado chileno.
+// Tasas base por tipo de institucion, con factor de escala
+// cuando el monto original > monto pendiente.
 function calcularDevolucion(
   tipoSeguro: string,
   montoOriginal: number,
@@ -63,31 +60,38 @@ function calcularDevolucion(
   cuotasRestantes: number,
   tipoInstitucion: string
 ) {
-  const tasaDesg =
-    tipoInstitucion === "automotriz" ? 0.00038 : 0.00035;
-  const tasaCes = 0.0002;
+  let tasaDesg: number;
+  let tasaCes: number;
 
-  const primaDesgMensual = montoPendiente * tasaDesg;
-  const primaCesMensual = montoPendiente * tasaCes;
+  switch (tipoInstitucion) {
+    case "automotriz":
+      tasaDesg = 0.000210;
+      tasaCes = 0.000720;
+      break;
+    case "cooperativa":
+      tasaDesg = 0.000190;
+      tasaCes = 0.000650;
+      break;
+    default: // banco, otros
+      tasaDesg = 0.000184;
+      tasaCes = 0.000630;
+  }
 
-  // Factor de ahorro por portabilidad (diferencia entre prima banco vs mercado)
-  const factorAhorro = tipoInstitucion === "automotriz" ? 0.45 : 0.5;
-
-  // Factor de ajuste por cuotas restantes (mas cuotas = mas devolucion proporcional)
-  const factorCuotas = Math.min(cuotasRestantes / 48, 1);
-  const ajuste = 0.85 + 0.15 * factorCuotas;
+  const ratio = Math.max(montoOriginal / montoPendiente, 1);
+  const factorDesg = Math.pow(ratio, 1.8);
+  const factorCes = Math.pow(ratio, 1.7);
 
   let desgAmount = 0;
   let deseAmount = 0;
 
   if (tipoSeguro === "desgravamen" || tipoSeguro === "ambos") {
     desgAmount = Math.round(
-      primaDesgMensual * cuotasRestantes * factorAhorro * ajuste
+      montoPendiente * tasaDesg * cuotasRestantes * factorDesg
     );
   }
   if (tipoSeguro === "cesantia" || tipoSeguro === "ambos") {
     deseAmount = Math.round(
-      primaCesMensual * cuotasRestantes * factorAhorro * ajuste
+      montoPendiente * tasaCes * cuotasRestantes * factorCes
     );
   }
 

@@ -246,6 +246,7 @@ export default function Simulator() {
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>({
     nombre: "",
     apellido: "",
@@ -309,21 +310,96 @@ export default function Simulator() {
     form.tipo_institucion &&
     form.nombre_institucion;
 
+  // Step 1 → 2: create lead in DB with personal data + estado "paso_1"
+  const goToStep2 = async () => {
+    setStep(2);
+    try {
+      const { data } = await supabase
+        .from("simulation_leads")
+        .insert({
+          nombre: form.nombre.trim(),
+          apellido: form.apellido.trim(),
+          email: form.email.trim(),
+          telefono: form.telefono.trim(),
+          estado: "paso_1",
+          notas: "Datos personales completados",
+        })
+        .select("id")
+        .single();
+      if (data?.id) setLeadId(data.id);
+    } catch {
+      /* non-blocking */
+    }
+  };
+
+  // Step 2 → 3: update lead with insurance selection
+  const goToStep3 = async () => {
+    setStep(3);
+    if (!leadId) return;
+    try {
+      await supabase
+        .from("simulation_leads")
+        .update({
+          tipo_credito: form.tipo_institucion,
+          notas: `${form.nombre_institucion} | ${tipoSeguroEfectivo}`,
+          estado: "paso_2",
+        })
+        .eq("id", leadId);
+    } catch {
+      /* non-blocking */
+    }
+  };
+
+  // Step 3 submit: update lead with simulation results + send email
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await supabase.from("simulation_leads").insert({
-        nombre: form.nombre.trim(),
-        apellido: form.apellido.trim(),
-        email: form.email.trim(),
-        telefono: form.telefono.trim(),
-        tipo_credito: form.tipo_institucion,
+      const updateData = {
         monto_credito: form.monto_original,
         plazo_meses: form.cuotas_restantes,
         prima_seguro: resultado?.total ?? 0,
         ahorro_estimado: resultado?.total ?? 0,
         notas: `${form.nombre_institucion} | ${tipoSeguroEfectivo} | Pend: ${form.monto_pendiente}`,
+        estado: "completado",
+      };
+
+      if (leadId) {
+        await supabase
+          .from("simulation_leads")
+          .update(updateData)
+          .eq("id", leadId);
+      } else {
+        await supabase.from("simulation_leads").insert({
+          ...updateData,
+          nombre: form.nombre.trim(),
+          apellido: form.apellido.trim(),
+          email: form.email.trim(),
+          telefono: form.telefono.trim(),
+          tipo_credito: form.tipo_institucion,
+        });
+      }
+
+      // Send welcome email
+      await fetch("/api/new-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre.trim(),
+          apellido: form.apellido.trim(),
+          email: form.email.trim(),
+          telefono: form.telefono.trim(),
+          tipo_institucion: form.tipo_institucion,
+          nombre_institucion: form.nombre_institucion,
+          tipo_seguro: tipoSeguroEfectivo,
+          monto_original: form.monto_original,
+          monto_pendiente: form.monto_pendiente,
+          cuotas_restantes: form.cuotas_restantes,
+          ahorro_estimado: resultado?.total ?? 0,
+          desg_amount: resultado?.desgAmount ?? 0,
+          dese_amount: resultado?.deseAmount ?? 0,
+        }),
       });
+
       setSubmitted(true);
     } catch {
       alert("Error al enviar. Intenta nuevamente.");
@@ -501,7 +577,7 @@ export default function Simulator() {
 
                     <button
                       disabled={!canGoStep2}
-                      onClick={() => setStep(2)}
+                      onClick={goToStep2}
                       className="mt-5 w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Continuar
@@ -617,7 +693,7 @@ export default function Simulator() {
                       </button>
                       <button
                         disabled={!canGoStep3}
-                        onClick={() => setStep(3)}
+                        onClick={goToStep3}
                         className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-text-inverse btn-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       >
                         Simular devolucion

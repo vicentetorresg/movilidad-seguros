@@ -5,8 +5,8 @@
     <rect x="59" y="26" width="22" height="40" rx="11" fill="#0F1D3D"/>
     <path d="M40 58 L100 58 L70 96 Z" fill="#0F1D3D" stroke="#0F1D3D" stroke-width="7" stroke-linejoin="round"/>
     <circle cx="118" cy="116" r="38" fill="#0F1D3D"/>
-    <circle cx="118" cy="116" r="31" fill="#2663EB"/>
+    <circle cx="118" cy="116" r="31" fill="#ffffff"/>
     <path d="M118 97.2 L118 134.8 M127.4 105.7 C127.4 101 122.7 98.6 118 98.6 C113.3 98.6 109.1 101 109.1 105.2 C109.1 109.9 113.8 111.1 118 112.2 C122.7 113.2 127.4 114.6 127.4 119.3 C127.4 123.5 122.7 125.9 118 125.9 C113.3 125.9 108.6 123.5 108.6 118.8" fill="none" stroke="#ffffff" stroke-width="5.6" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <text x="196" y="86" dominant-baseline="central" font-family="Poppins, Helvetica, Arial, sans-serif" font-weight="600" font-size="88" letter-spacing="-1"><tspan fill="#ffffff">Rebaja</tspan><tspan fill="#2663EB">Tu</tspan><tspan fill="#ffffff">Seguro</tspan></text>
+  <text x="196" y="86" dominant-baseline="central" font-family="Poppins, Helvetica, Arial, sans-serif" font-weight="600" font-size="88" letter-spacing="-1"><tspan fill="#ffffff">Rebaja</tspan><tspan fill="#ffffff">Tu</tspan><tspan fill="#ffffff">Seguro</tspan></text>
 </svg>

@@ -21,49 +21,57 @@ import { supabase } from "@/lib/supabase";
 
 type Step = 1 | 2 | 3;
 
-// Tasas efectivas calibradas con datos reales del mercado (por institución)
-// rate = amount / (balance * cuotas) — fórmula: desg = balance * cuotas * tasaDesg
-const TASAS: Record<string, [number, number]> = {
-  // BANCOS [tasaDesg, tasaCes]
-  "Banco BCI":           [0.000230, 0.000361],
-  "Banco BICE":          [0.000148, 0.000452],
-  "Banco de Chile":      [0.000185, 0.000636],
-  "Banco Estado":        [0.000124, 0.000288],
-  "Banco Falabella":     [0.000240, 0.000452],
-  "Banco Internacional": [0.000322, 0.000452],
-  "Banco Itau":          [0.000258, 0.001292],
-  "Banco Ripley":        [0.000313, 0.000452],
-  "Banco Scotiabank":    [0.000230, 0.000213],
-  "Condell":             [0.000988, 0.000544],
-  "Consorcio":           [0.000399, 0.000452],
-  "Santander":           [0.000230, 0.000443],
-  "Security":            [0.000322, 0.000452],
+// Tasas calibradas con API real: refund = (capital * r1 - balance * r2) * cuotas
+// [r1_desg, r2_desg, r1_ces, r2_ces]
+const TASAS: Record<string, [number, number, number, number]> = {
+  // BANCOS
+  "Banco BCI":           [0.0005251, 0.0002880, 0.0012693, 0.0008913],
+  "Banco BICE":          [0.0004426, 0.0002880, 0.0013609, 0.0008913],
+  "Banco de Chile":      [0.0004793, 0.0002880, 0.0015443, 0.0008913],
+  "Banco Estado":        [0.0000811, -0.0000500, 0.0009594, 0.0006545],
+  "Banco Falabella":     [0.0005343, 0.0002880, 0.0013609, 0.0008913],
+  "Banco Internacional": [0.0006168, 0.0002880, 0.0013609, 0.0008913],
+  "Banco Itau":          [0.0005526, 0.0002880, 0.0022006, 0.0008913],
+  "Banco Ripley":        [0.0006076, 0.0002880, 0.0013609, 0.0008913],
+  "Banco Scotiabank":    [0.0005251, 0.0002880, 0.0011217, 0.0008913],
+  "Condell":             [0.0015895, 0.0005950, 0.0014526, 0.0008913],
+  "Consorcio":           [0.0009157, 0.0005100, 0.0013609, 0.0008913],
+  "Santander":           [0.0005251, 0.0002880, 0.0013518, 0.0008913],
+  "Security":            [0.0006168, 0.0002880, 0.0013609, 0.0008913],
   // COOPERATIVAS
-  "Ahorrocoop":  [0.000291, 0.000544],
-  "Bancrece":    [0.000376, 0.000452],
-  "Capual":      [0.000376, 0.000452],
-  "Coocretal":   [0.000376, 0.000452],
-  "Coopeuch":    [0.000150, 0.000190],
-  "Financoop":   [0.000291, 0.000452],
-  "Libercoop":   [0.000376, 0.000452],
-  "Oriencoop":   [0.000291, 0.000544],
-  "Bansur":      [0.000376, 0.000544],
-  "Coonfia":     [0.000376, 0.000544],
-  "Solventa":    [0.000376, 0.000544],
+  "Ahorrocoop":  [0.0008928, 0.0005950, 0.0014526, 0.0008913],
+  "Bancrece":    [0.0008928, 0.0005100, 0.0013609, 0.0008913],
+  "Capual":      [0.0008928, 0.0005100, 0.0013609, 0.0008913],
+  "Coocretal":   [0.0008928, 0.0005100, 0.0013609, 0.0008913],
+  "Coopeuch":    [0.0005555, 0.0003990, 0.0008613, 0.0006545],
+  "Financoop":   [0.0008928, 0.0005950, 0.0013609, 0.0008913],
+  "Libercoop":   [0.0008928, 0.0005100, 0.0013609, 0.0008913],
+  "Oriencoop":   [0.0008928, 0.0005950, 0.0014526, 0.0008913],
+  "Bansur":      [0.0008928, 0.0005100, 0.0014526, 0.0008913],
+  "Coonfia":     [0.0008928, 0.0005100, 0.0014526, 0.0008913],
+  "Solventa":    [0.0008928, 0.0005100, 0.0014526, 0.0008913],
+  "Detacoop":    [0.0015646, 0.0005950, 0.0014661, 0.0008913],
   // AUTOMOTRIZ
-  "Amicar":             [0.000273, 0.000000],
-  "Autofin":            [0.000273, 0.000572],
-  "Chevrolet":          [0.000273, 0.000572],
-  "Santander Consumer": [0.000273, 0.000572],
-  "Tanner":             [0.000034, 0.000572],
-  "Mafi":               [0.000273, 0.000000],
-  "Mitsui":             [0.000273, 0.000572],
-  "Eurocapital":        [0.000273, 0.000000],
+  "Amicar":                [0.0008745, 0.0005950, 0.0000000, 0.0000000],
+  "Autofin":               [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "BK SPA":                [0.0006819, 0.0005950, 0.0014810, 0.0008913],
+  "Chevrolet":             [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "GM Financial":          [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Global Soluciones":     [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Mafi":                  [0.0008745, 0.0005950, 0.0000000, 0.0000000],
+  "Marubeni Credit":       [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Mitsui":                [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Mundo Credito":         [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "OLX Autos":             [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Santander Consumer":    [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Tanner":                [0.0006361, 0.0005950, 0.0014810, 0.0008913],
+  "Unidad Automotriz":     [0.0008745, 0.0005950, 0.0014810, 0.0008913],
+  "Eurocapital":           [0.0008745, 0.0005950, 0.0000000, 0.0000000],
   // CAJAS DE COMPENSACION (solo desgravamen)
-  "Caja 18 de Septiembre": [0.000792, 0.000000],
-  "Caja La Araucana":      [0.000572, 0.000000],
-  "Caja Los Andes":        [0.000442, 0.000000],
-  "Caja Los Heroes":       [0.001161, 0.000000],
+  "Caja 18 de Septiembre": [0.0011597, 0.0003677, 0.0000000, 0.0000000],
+  "Caja La Araucana":      [0.0011875, 0.0006156, 0.0000000, 0.0000000],
+  "Caja Los Andes":        [0.0008324, 0.0003905, 0.0000000, 0.0000000],
+  "Caja Los Heroes":       [0.0017765, 0.0006156, 0.0000000, 0.0000000],
 };
 
 const CATEGORIAS: { key: string; label: string; instituciones: string[] }[] = [
@@ -80,16 +88,18 @@ const CATEGORIAS: { key: string; label: string; instituciones: string[] }[] = [
     key: "cooperativa",
     label: "Cooperativa",
     instituciones: [
-      "Ahorrocoop", "Bancrece", "Capual", "Coocretal", "Coopeuch",
-      "Financoop", "Libercoop", "Oriencoop", "Bansur", "Coonfia", "Solventa",
+      "Ahorrocoop", "Bancrece", "Bansur", "Capual", "Coocretal", "Coonfia",
+      "Coopeuch", "Detacoop", "Financoop", "Libercoop", "Oriencoop", "Solventa",
     ],
   },
   {
     key: "automotriz",
     label: "Automotriz",
     instituciones: [
-      "Amicar", "Autofin", "Chevrolet", "Santander Consumer",
-      "Tanner", "Mafi", "Mitsui", "Eurocapital",
+      "Amicar", "Autofin", "BK SPA", "Chevrolet", "Eurocapital",
+      "GM Financial", "Global Soluciones", "Mafi", "Marubeni Credit",
+      "Mitsui", "Mundo Credito", "OLX Autos", "Santander Consumer",
+      "Tanner", "Unidad Automotriz",
     ],
   },
   {
@@ -134,6 +144,7 @@ const formatNum = (n: number) => new Intl.NumberFormat("es-CL").format(n);
 
 function calcularDevolucion(
   tipoSeguro: string,
+  montoOriginal: number,
   montoPendiente: number,
   cuotasRestantes: number,
   nombreInstitucion: string
@@ -141,15 +152,15 @@ function calcularDevolucion(
   const tasas = TASAS[nombreInstitucion];
   if (!tasas) return null;
 
-  const [tasaDesg, tasaCes] = tasas;
+  const [r1d, r2d, r1c, r2c] = tasas;
   let desgAmount = 0;
   let deseAmount = 0;
 
   if (tipoSeguro === "desgravamen" || tipoSeguro === "ambos") {
-    desgAmount = Math.round(montoPendiente * cuotasRestantes * tasaDesg);
+    desgAmount = Math.max(0, Math.round((montoOriginal * r1d - montoPendiente * r2d) * cuotasRestantes));
   }
   if (tipoSeguro === "cesantia" || tipoSeguro === "ambos") {
-    deseAmount = Math.round(montoPendiente * cuotasRestantes * tasaCes);
+    deseAmount = Math.max(0, Math.round((montoOriginal * r1c - montoPendiente * r2c) * cuotasRestantes));
   }
 
   return { desgAmount, deseAmount, total: desgAmount + deseAmount };
@@ -272,6 +283,7 @@ export default function Simulator() {
       return null;
     return calcularDevolucion(
       tipoSeguroEfectivo,
+      form.monto_original,
       form.monto_pendiente,
       form.cuotas_restantes,
       form.nombre_institucion

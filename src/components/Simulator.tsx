@@ -14,11 +14,93 @@ import {
   Shield,
   DollarSign,
   Calculator,
+  Check,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
 type Step = 1 | 2 | 3;
+
+// Tasas efectivas calibradas con datos reales del mercado (por institución)
+// rate = amount / (balance * cuotas) — fórmula: desg = balance * cuotas * tasaDesg
+const TASAS: Record<string, [number, number]> = {
+  // BANCOS [tasaDesg, tasaCes]
+  "Banco BCI":           [0.000230, 0.000361],
+  "Banco BICE":          [0.000148, 0.000452],
+  "Banco de Chile":      [0.000185, 0.000636],
+  "Banco Estado":        [0.000124, 0.000288],
+  "Banco Falabella":     [0.000240, 0.000452],
+  "Banco Internacional": [0.000322, 0.000452],
+  "Banco Itau":          [0.000258, 0.001292],
+  "Banco Ripley":        [0.000313, 0.000452],
+  "Banco Scotiabank":    [0.000230, 0.000213],
+  "Condell":             [0.000988, 0.000544],
+  "Consorcio":           [0.000399, 0.000452],
+  "Santander":           [0.000230, 0.000443],
+  "Security":            [0.000322, 0.000452],
+  // COOPERATIVAS
+  "Ahorrocoop":  [0.000291, 0.000544],
+  "Bancrece":    [0.000376, 0.000452],
+  "Capual":      [0.000376, 0.000452],
+  "Coocretal":   [0.000376, 0.000452],
+  "Coopeuch":    [0.000150, 0.000190],
+  "Financoop":   [0.000291, 0.000452],
+  "Libercoop":   [0.000376, 0.000452],
+  "Oriencoop":   [0.000291, 0.000544],
+  "Bansur":      [0.000376, 0.000544],
+  "Coonfia":     [0.000376, 0.000544],
+  "Solventa":    [0.000376, 0.000544],
+  // AUTOMOTRIZ
+  "Amicar":             [0.000273, 0.000000],
+  "Autofin":            [0.000273, 0.000572],
+  "Chevrolet":          [0.000273, 0.000572],
+  "Santander Consumer": [0.000273, 0.000572],
+  "Tanner":             [0.000034, 0.000572],
+  "Mafi":               [0.000273, 0.000000],
+  "Mitsui":             [0.000273, 0.000572],
+  "Eurocapital":        [0.000273, 0.000000],
+  // CAJAS DE COMPENSACION (solo desgravamen)
+  "Caja 18 de Septiembre": [0.000792, 0.000000],
+  "Caja La Araucana":      [0.000572, 0.000000],
+  "Caja Los Andes":        [0.000442, 0.000000],
+  "Caja Los Heroes":       [0.001161, 0.000000],
+};
+
+const CATEGORIAS: { key: string; label: string; instituciones: string[] }[] = [
+  {
+    key: "banco",
+    label: "Banco",
+    instituciones: [
+      "Banco BCI", "Banco BICE", "Banco de Chile", "Banco Estado",
+      "Banco Falabella", "Banco Internacional", "Banco Itau", "Banco Ripley",
+      "Banco Scotiabank", "Condell", "Consorcio", "Santander", "Security",
+    ],
+  },
+  {
+    key: "cooperativa",
+    label: "Cooperativa",
+    instituciones: [
+      "Ahorrocoop", "Bancrece", "Capual", "Coocretal", "Coopeuch",
+      "Financoop", "Libercoop", "Oriencoop", "Bansur", "Coonfia", "Solventa",
+    ],
+  },
+  {
+    key: "automotriz",
+    label: "Automotriz",
+    instituciones: [
+      "Amicar", "Autofin", "Chevrolet", "Santander Consumer",
+      "Tanner", "Mafi", "Mitsui", "Eurocapital",
+    ],
+  },
+  {
+    key: "caja",
+    label: "Caja de Compensacion",
+    instituciones: [
+      "Caja 18 de Septiembre", "Caja La Araucana",
+      "Caja Los Andes", "Caja Los Heroes",
+    ],
+  },
+];
 
 interface FormData {
   nombre: string;
@@ -35,44 +117,6 @@ interface FormData {
   cuotas_restantes: number;
 }
 
-// Instituciones por tipo con factores de ajuste por cada una
-const INSTITUCIONES: Record<string, { label: string; factor: number }[]> = {
-  banco: [
-    { label: "Banco de Chile", factor: 1.0 },
-    { label: "Banco Estado", factor: 0.92 },
-    { label: "Banco Santander", factor: 1.05 },
-    { label: "BCI", factor: 1.02 },
-    { label: "Banco Scotiabank", factor: 0.98 },
-    { label: "Banco Itau", factor: 1.08 },
-    { label: "Banco Falabella", factor: 0.95 },
-    { label: "Banco Ripley", factor: 0.90 },
-    { label: "Banco Security", factor: 1.03 },
-    { label: "Banco BICE", factor: 1.06 },
-    { label: "Banco Consorcio", factor: 1.01 },
-    { label: "Otro banco", factor: 0.97 },
-  ],
-  cooperativa: [
-    { label: "Coopeuch", factor: 1.0 },
-    { label: "Oriencoop", factor: 0.95 },
-    { label: "Capual", factor: 0.92 },
-    { label: "Detacoop", factor: 0.93 },
-    { label: "Coocretal", factor: 0.91 },
-    { label: "Otra cooperativa", factor: 0.94 },
-  ],
-  automotriz: [
-    { label: "Forum (Cencosud)", factor: 1.0 },
-    { label: "Santander Consumer", factor: 1.05 },
-    { label: "GMAC", factor: 0.98 },
-    { label: "Tanner", factor: 0.96 },
-    { label: "Otra automotriz", factor: 0.97 },
-  ],
-  otros: [
-    { label: "Caja de Compensacion", factor: 0.88 },
-    { label: "Financiera", factor: 0.95 },
-    { label: "Otra institucion", factor: 0.90 },
-  ],
-};
-
 const DEFAULTS = {
   monto_original: 30000000,
   monto_pendiente: 25000000,
@@ -86,60 +130,105 @@ const formatCLP = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
-const formatNum = (n: number) =>
-  new Intl.NumberFormat("es-CL").format(n);
+const formatNum = (n: number) => new Intl.NumberFormat("es-CL").format(n);
 
-// Calculo calibrado con datos de mercado chileno.
-// Cada institucion tiene un factor de ajuste propio.
 function calcularDevolucion(
   tipoSeguro: string,
-  montoOriginal: number,
   montoPendiente: number,
   cuotasRestantes: number,
-  tipoInstitucion: string,
   nombreInstitucion: string
 ) {
-  let tasaDesg: number;
-  let tasaCes: number;
+  const tasas = TASAS[nombreInstitucion];
+  if (!tasas) return null;
 
-  switch (tipoInstitucion) {
-    case "automotriz":
-      tasaDesg = 0.000210;
-      tasaCes = 0.000720;
-      break;
-    case "cooperativa":
-      tasaDesg = 0.000190;
-      tasaCes = 0.000650;
-      break;
-    default:
-      tasaDesg = 0.000184;
-      tasaCes = 0.000630;
-  }
-
-  // Factor de la institucion especifica
-  const instituciones = INSTITUCIONES[tipoInstitucion] ?? [];
-  const inst = instituciones.find((i) => i.label === nombreInstitucion);
-  const factorInst = inst?.factor ?? 1.0;
-
-  const ratio = Math.max(montoOriginal / montoPendiente, 1);
-  const factorDesg = Math.pow(ratio, 1.8);
-  const factorCes = Math.pow(ratio, 1.7);
-
+  const [tasaDesg, tasaCes] = tasas;
   let desgAmount = 0;
   let deseAmount = 0;
 
   if (tipoSeguro === "desgravamen" || tipoSeguro === "ambos") {
-    desgAmount = Math.round(
-      montoPendiente * tasaDesg * cuotasRestantes * factorDesg * factorInst
-    );
+    desgAmount = Math.round(montoPendiente * cuotasRestantes * tasaDesg);
   }
   if (tipoSeguro === "cesantia" || tipoSeguro === "ambos") {
-    deseAmount = Math.round(
-      montoPendiente * tasaCes * cuotasRestantes * factorCes * factorInst
-    );
+    deseAmount = Math.round(montoPendiente * cuotasRestantes * tasaCes);
   }
 
   return { desgAmount, deseAmount, total: desgAmount + deseAmount };
+}
+
+// Custom select component
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  icon: Icon,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+  icon: typeof Building2;
+}) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 pl-11 pr-10 py-3.5 rounded-xl border border-border bg-surface text-left text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer hover:border-primary-200"
+      >
+        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+        <span className={selected ? "text-text font-medium" : "text-text-muted"}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <ChevronDown
+          className={`absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 mt-1.5 w-full max-h-56 overflow-y-auto rounded-xl border border-border bg-surface shadow-xl shadow-primary-900/10"
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-colors cursor-pointer hover:bg-primary-50 ${
+                  value === opt.value
+                    ? "bg-primary-50 text-primary font-medium"
+                    : "text-text"
+                }`}
+              >
+                {opt.label}
+                {value === opt.value && (
+                  <Check className="w-4 h-4 text-primary shrink-0" />
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {open && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setOpen(false)}
+        />
+      )}
+    </div>
+  );
 }
 
 export default function Simulator() {
@@ -167,26 +256,28 @@ export default function Simulator() {
     []
   );
 
+  const categoria = CATEGORIAS.find((c) => c.key === form.tipo_institucion);
+  const isCaja = form.tipo_institucion === "caja";
+
+  // Si es caja, forzar tipo_seguro a desgravamen (no tienen cesantía)
+  const tipoSeguroEfectivo = isCaja ? "desgravamen" : form.tipo_seguro;
+
   const resultado = useMemo(() => {
     if (
-      !form.tipo_seguro ||
-      !form.tipo_institucion ||
+      !tipoSeguroEfectivo ||
       !form.nombre_institucion ||
       form.monto_pendiente <= 0 ||
       form.cuotas_restantes <= 0
     )
       return null;
     return calcularDevolucion(
-      form.tipo_seguro,
-      form.monto_original,
+      tipoSeguroEfectivo,
       form.monto_pendiente,
       form.cuotas_restantes,
-      form.tipo_institucion,
       form.nombre_institucion
     );
   }, [
-    form.tipo_seguro,
-    form.tipo_institucion,
+    tipoSeguroEfectivo,
     form.nombre_institucion,
     form.monto_original,
     form.monto_pendiente,
@@ -202,7 +293,9 @@ export default function Simulator() {
     form.acepta_portabilidad;
 
   const canGoStep3 =
-    form.tipo_seguro && form.tipo_institucion && form.nombre_institucion;
+    (isCaja || form.tipo_seguro) &&
+    form.tipo_institucion &&
+    form.nombre_institucion;
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -217,7 +310,7 @@ export default function Simulator() {
         plazo_meses: form.cuotas_restantes,
         prima_seguro: resultado?.total ?? 0,
         ahorro_estimado: resultado?.total ?? 0,
-        notas: `${form.nombre_institucion} | ${form.tipo_seguro} | Pend: ${form.monto_pendiente}`,
+        notas: `${form.nombre_institucion} | ${tipoSeguroEfectivo} | Pend: ${form.monto_pendiente}`,
       });
       setSubmitted(true);
     } catch {
@@ -232,12 +325,10 @@ export default function Simulator() {
   const inputWithIcon = `${inputBase} pl-11`;
   const labelClass = "block text-sm font-medium text-text mb-1.5";
 
-  const instituciones = INSTITUCIONES[form.tipo_institucion] ?? [];
-
   return (
     <section id="simulador" className="py-20 lg:py-32 bg-surface-tertiary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header centrado */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -256,7 +347,7 @@ export default function Simulator() {
         </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
-          {/* Left: Form (3 cols) */}
+          {/* Form (3 cols) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -276,11 +367,7 @@ export default function Simulator() {
                             : "bg-primary-100 text-text-muted"
                         }`}
                       >
-                        {step > s ? (
-                          <CheckCircle2 className="w-4 h-4" />
-                        ) : (
-                          s
-                        )}
+                        {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
                       </div>
                       {s < 3 && (
                         <div className="flex-1 h-1 rounded-full bg-primary-100">
@@ -297,7 +384,7 @@ export default function Simulator() {
               )}
 
               <AnimatePresence mode="wait">
-                {/* PASO 1: Datos personales */}
+                {/* PASO 1 */}
                 {step === 1 && !submitted && (
                   <motion.div
                     key="step1"
@@ -411,7 +498,7 @@ export default function Simulator() {
                   </motion.div>
                 )}
 
-                {/* PASO 2: Tipo seguro + institucion */}
+                {/* PASO 2 */}
                 {step === 2 && !submitted && (
                   <motion.div
                     key="step2"
@@ -424,61 +511,60 @@ export default function Simulator() {
                       Tu seguro
                     </h3>
                     <p className="text-sm text-text-muted mb-5">
-                      Selecciona el seguro e institucion
+                      Selecciona el tipo de seguro e institucion
                     </p>
 
                     <div className="space-y-4">
                       {/* Tipo de seguro */}
-                      <div>
-                        <label className={labelClass}>Tipo de seguro</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            { value: "desgravamen", label: "Desgravamen" },
-                            { value: "cesantia", label: "Cesantia" },
-                            { value: "ambos", label: "Ambos" },
-                          ].map((opt) => (
-                            <button
-                              key={opt.value}
-                              onClick={() => set("tipo_seguro", opt.value)}
-                              className={`py-3 px-2 rounded-xl text-sm font-medium border-2 transition-all cursor-pointer ${
-                                form.tipo_seguro === opt.value
-                                  ? "border-primary bg-primary-50 text-primary"
-                                  : "border-border-light text-text-secondary hover:border-primary-200"
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
+                      {!isCaja && (
+                        <div>
+                          <label className={labelClass}>Tipo de seguro</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { value: "desgravamen", label: "Desgravamen" },
+                              { value: "cesantia", label: "Cesantia" },
+                              { value: "ambos", label: "Ambos" },
+                            ].map((opt) => (
+                              <button
+                                key={opt.value}
+                                onClick={() => set("tipo_seguro", opt.value)}
+                                className={`py-3 px-2 rounded-xl text-sm font-medium border-2 transition-all cursor-pointer ${
+                                  form.tipo_seguro === opt.value
+                                    ? "border-primary bg-primary-50 text-primary"
+                                    : "border-border-light text-text-secondary hover:border-primary-200"
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Tipo de institucion */}
                       <div>
                         <label className={labelClass}>
                           Tipo de institucion
                         </label>
-                        <div className="relative">
-                          <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                          <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-                          <select
-                            value={form.tipo_institucion}
-                            onChange={(e) => {
-                              set("tipo_institucion", e.target.value);
-                              set("nombre_institucion", "");
-                            }}
-                            className={`${inputWithIcon} appearance-none cursor-pointer pr-10`}
-                          >
-                            <option value="">Selecciona tipo</option>
-                            <option value="banco">Banco</option>
-                            <option value="cooperativa">Cooperativa</option>
-                            <option value="automotriz">Automotriz</option>
-                            <option value="otros">Otros</option>
-                          </select>
-                        </div>
+                        <CustomSelect
+                          value={form.tipo_institucion}
+                          onChange={(v) => {
+                            set("tipo_institucion", v);
+                            set("nombre_institucion", "");
+                            // Si es caja, limpiar tipo_seguro
+                            if (v === "caja") set("tipo_seguro", "");
+                          }}
+                          options={CATEGORIAS.map((c) => ({
+                            value: c.key,
+                            label: c.label,
+                          }))}
+                          placeholder="Selecciona tipo"
+                          icon={Building2}
+                        />
                       </div>
 
                       {/* Nombre de institucion */}
-                      {form.tipo_institucion && (
+                      {categoria && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
@@ -487,25 +573,26 @@ export default function Simulator() {
                           <label className={labelClass}>
                             Nombre de institucion
                           </label>
-                          <div className="relative">
-                            <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-                            <select
-                              value={form.nombre_institucion}
-                              onChange={(e) =>
-                                set("nombre_institucion", e.target.value)
-                              }
-                              className={`${inputWithIcon} appearance-none cursor-pointer pr-10`}
-                            >
-                              <option value="">Selecciona</option>
-                              {instituciones.map((inst) => (
-                                <option key={inst.label} value={inst.label}>
-                                  {inst.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                          <CustomSelect
+                            value={form.nombre_institucion}
+                            onChange={(v) => set("nombre_institucion", v)}
+                            options={categoria.instituciones.map((name) => ({
+                              value: name,
+                              label: name,
+                            }))}
+                            placeholder="Selecciona institucion"
+                            icon={Shield}
+                          />
                         </motion.div>
+                      )}
+
+                      {isCaja && (
+                        <div className="p-3 rounded-lg bg-primary-50 border border-primary-200">
+                          <p className="text-xs text-primary-700">
+                            Las Cajas de Compensacion solo tienen seguro de
+                            desgravamen.
+                          </p>
+                        </div>
                       )}
                     </div>
 
@@ -528,7 +615,7 @@ export default function Simulator() {
                   </motion.div>
                 )}
 
-                {/* PASO 3: Sliders + resultado */}
+                {/* PASO 3 */}
                 {step === 3 && !submitted && (
                   <motion.div
                     key="step3"
@@ -672,7 +759,7 @@ export default function Simulator() {
                       </div>
                     </div>
 
-                    {/* Resultado inline (siempre visible en step 3) */}
+                    {/* Resultado inline */}
                     {resultado && resultado.total > 0 && (
                       <motion.div
                         initial={{ opacity: 0, y: 12 }}
@@ -764,7 +851,7 @@ export default function Simulator() {
             </div>
           </motion.div>
 
-          {/* Right: Info sidebar (2 cols) — hidden on mobile until step 3 result */}
+          {/* Sidebar derecho (desktop) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -772,7 +859,6 @@ export default function Simulator() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2 hidden lg:block"
           >
-            {/* Resultado desktop */}
             {resultado && resultado.total > 0 && step === 3 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -786,8 +872,7 @@ export default function Simulator() {
                   <p className="text-4xl font-bold text-primary-950 tracking-tight">
                     {formatCLP(resultado.total)}
                   </p>
-
-                  <div className="mt-4 space-y-0">
+                  <div className="mt-4">
                     {resultado.desgAmount > 0 && (
                       <div className="flex justify-between items-center py-2.5 border-t border-border-light">
                         <span className="text-sm text-text-secondary">
@@ -809,8 +894,12 @@ export default function Simulator() {
                       </div>
                     )}
                   </div>
-
-                  <p className="mt-3 text-xs text-text-muted">
+                  <div className="mt-3 pt-3 border-t border-border-light">
+                    <p className="text-xs text-text-muted">
+                      Institucion: {form.nombre_institucion}
+                    </p>
+                  </div>
+                  <p className="mt-2 text-[10px] text-text-muted">
                     * Monto referencial sujeto a confirmacion. El valor
                     definitivo sera entregado en la evaluacion final.
                   </p>
@@ -818,7 +907,6 @@ export default function Simulator() {
               </motion.div>
             )}
 
-            {/* Beneficios */}
             <div className="space-y-3">
               {[
                 "Analisis gratuito y sin compromiso",
@@ -828,9 +916,7 @@ export default function Simulator() {
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-accent-600 mt-0.5 shrink-0" />
-                  <span className="text-text-secondary text-sm">
-                    {item}
-                  </span>
+                  <span className="text-text-secondary text-sm">{item}</span>
                 </div>
               ))}
             </div>

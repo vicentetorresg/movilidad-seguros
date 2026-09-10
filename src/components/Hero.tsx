@@ -1,102 +1,171 @@
 "use client";
 
-import { ArrowRight, ShieldCheck, Clock, BadgeCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Clock, Laptop, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
-const stats = [
-  { icon: ShieldCheck, value: "100%", label: "Legal y seguro" },
-  { icon: Clock, value: "20 dias", label: "Promedio devolucion" },
-  { icon: BadgeCheck, value: "Online", label: "Proceso 100% digital" },
+const badges = [
+  { icon: ShieldCheck, text: "100% Legal" },
+  { icon: Clock, text: "20 dias promedio" },
+  { icon: Laptop, text: "100% Online" },
 ];
+
+const counter = { value: "+2.500", label: "personas ya portaron sus seguros" };
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
-      <div className="absolute inset-0 gradient-hero" />
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-primary-200 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] bg-accent-200 rounded-full blur-[120px]" />
+    <section className="relative min-h-[100dvh] flex items-center overflow-hidden bg-surface">
+      {/* Subtle background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-surface to-surface-secondary" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary-100/40 rounded-full blur-[100px] -translate-y-1/4 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent-100/30 rounded-full blur-[100px] translate-y-1/4 -translate-x-1/4" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 w-full">
-        <div className="max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-200 text-sm text-primary-700 font-medium mb-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          {/* Left content */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-50 border border-accent-200 text-sm text-accent-600 font-medium mb-8"
+            >
               <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
               Portabilidad de seguros en Chile
-            </div>
-          </motion.div>
+            </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight tracking-tight"
-          >
-            Recupera el dinero de tus{" "}
-            <span className="text-primary-600">
-              seguros asociados
-            </span>{" "}
-            a creditos
-          </motion.h1>
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.08 }}
+              className="text-[2.5rem] sm:text-5xl lg:text-[3.5rem] font-bold text-primary-950 leading-[1.1] tracking-tight"
+            >
+              Recupera el dinero{" "}
+              <span className="text-primary">de tus seguros</span> asociados a
+              creditos
+            </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-6 text-lg sm:text-xl text-gray-500 max-w-2xl leading-relaxed"
-          >
-            Te ayudamos a portar tus seguros de creditos de consumo o automotriz,
-            recuperando tu dinero de forma rapida, segura y completamente online.
-          </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.16 }}
+              className="mt-6 text-lg text-text-secondary max-w-xl leading-relaxed"
+            >
+              Portamos tus seguros de creditos de consumo o automotriz,
+              devolviendo tu dinero de forma rapida, segura y completamente
+              online. Sin letra chica.
+            </motion.p>
 
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.24 }}
+              className="mt-8 flex flex-col sm:flex-row gap-4"
+            >
+              <a
+                href="#simulador"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full btn-primary text-base cursor-pointer"
+              >
+                Simula tu devolucion
+                <ArrowRight className="w-5 h-5" />
+              </a>
+              <a
+                href="#como-funciona"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-border text-text font-medium text-base hover:bg-primary-50 transition-colors cursor-pointer"
+              >
+                Como funciona
+              </a>
+            </motion.div>
+
+            {/* Trust badges */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-10 flex flex-wrap gap-4"
+            >
+              {badges.map((b) => (
+                <div
+                  key={b.text}
+                  className="flex items-center gap-2 text-sm text-text-secondary"
+                >
+                  <b.icon className="w-4 h-4 text-accent-600" />
+                  <span className="font-medium">{b.text}</span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Right: Stats card */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 24, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-10 flex flex-col sm:flex-row gap-4"
+            className="hidden lg:block"
           >
-            <a
-              href="#simulador"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full gradient-primary text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-primary-500/20"
-            >
-              Simula tu devolucion
-              <ArrowRight className="w-5 h-5" />
-            </a>
-            <a
-              href="#como-funciona"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-gray-200 text-gray-700 font-medium text-base hover:bg-gray-50 transition-colors"
-            >
-              Como funciona
-            </a>
+            <div className="glass-card rounded-3xl p-8 shadow-xl shadow-primary-900/5">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-text-inverse" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-text-muted">
+                    Ya han confiado en nosotros
+                  </p>
+                  <p className="text-2xl font-bold text-primary-900">
+                    {counter.value}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  {
+                    label: "Creditos de consumo",
+                    pct: 65,
+                    color: "bg-primary",
+                  },
+                  {
+                    label: "Creditos automotriz",
+                    pct: 35,
+                    color: "bg-primary-400",
+                  },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div className="flex justify-between text-sm mb-1.5">
+                      <span className="font-medium text-text">
+                        {item.label}
+                      </span>
+                      <span className="text-text-muted">{item.pct}%</span>
+                    </div>
+                    <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${item.pct}%` }}
+                        transition={{ duration: 1, delay: 0.8 }}
+                        className={`h-full ${item.color} rounded-full`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-border-light grid grid-cols-3 gap-4">
+                {[
+                  { v: "$850M+", l: "Devueltos" },
+                  { v: "20 dias", l: "Promedio" },
+                  { v: "98%", l: "Satisfaccion" },
+                ].map((s) => (
+                  <div key={s.l} className="text-center">
+                    <p className="text-lg font-bold text-primary-900">{s.v}</p>
+                    <p className="text-xs text-text-muted mt-0.5">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6"
-        >
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="flex items-center gap-4 px-6 py-5 rounded-2xl bg-white border border-gray-100 shadow-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center">
-                <s.icon className="w-6 h-6 text-primary-600" />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-gray-900">{s.value}</p>
-                <p className="text-sm text-gray-400">{s.label}</p>
-              </div>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   );

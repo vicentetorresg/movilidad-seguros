@@ -75,7 +75,8 @@ export default function About() {
                 <p className="text-sm font-medium text-white">Dirección</p>
                 <p className="text-sm text-primary-300 mt-1">
                   Apoquindo 6410, Of. 1404<br />
-                  🚇 Metro Manquehue · Las Condes, Santiago
+                  Las Condes, Santiago<br />
+                  🚇 Metro Manquehue
                 </p>
               </div>
             </div>

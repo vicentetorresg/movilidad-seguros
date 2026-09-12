@@ -616,6 +616,43 @@ export default function Simulator() {
           </p>
         </motion.div>
 
+        {/* Mobile case study - above form */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="lg:hidden mb-8 max-w-lg mx-auto"
+        >
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                JR
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white">Joaquín R.</p>
+                <p className="text-xs text-primary-300">Crédito de consumo · Desgravamen y Cesantía</p>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse" />
+                <span className="text-xs font-medium text-accent-500">Caso real</span>
+              </div>
+            </div>
+            <p className="text-sm text-primary-200 leading-relaxed mb-3">
+              Portó sus seguros de desgravamen y cesantía, recuperó el seguro no devengado y además se cambió a uno más barato.
+            </p>
+            <div className="flex items-center justify-between bg-accent-50 rounded-xl px-4 py-3 border border-accent-100">
+              <div>
+                <p className="text-xs text-accent-600 font-medium">Devolución obtenida</p>
+                <p className="text-2xl font-bold text-accent-600 tracking-tight">$1.145.384</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-text-muted">Proceso</p>
+                <p className="text-sm font-semibold text-primary-950">20 días · $0 costo</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
           {/* Form (3 cols) */}
           <motion.div
@@ -1159,6 +1196,41 @@ export default function Simulator() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-2 hidden lg:block"
           >
+            {/* Joaquín case study - desktop */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
+                <p className="text-sm font-medium text-accent-500">Caso real</p>
+              </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-base font-bold text-white shrink-0">
+                  JR
+                </div>
+                <div>
+                  <p className="font-semibold text-white">Joaquín R.</p>
+                  <p className="text-xs text-primary-300">Crédito de consumo</p>
+                </div>
+              </div>
+              <p className="text-sm text-primary-200 leading-relaxed mb-4">
+                Portó sus seguros de desgravamen y cesantía, recuperó el seguro no devengado y además se cambió a uno más barato.
+              </p>
+              <div className="bg-accent-50 rounded-xl p-4 mb-4 border border-accent-100">
+                <p className="text-xs text-accent-600 font-medium mb-0.5">Devolución obtenida</p>
+                <p className="text-3xl font-bold text-accent-600 tracking-tight">$1.145.384</p>
+                <p className="text-xs text-text-muted mt-1">Desgravamen + Cesantía</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-white">20 días</p>
+                  <p className="text-xs text-primary-300">Proceso</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold text-white">$0</p>
+                  <p className="text-xs text-primary-300">Costo</p>
+                </div>
+              </div>
+            </div>
+
             {apiLoading && !resultado && step === 3 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}

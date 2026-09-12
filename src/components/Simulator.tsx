@@ -594,11 +594,13 @@ export default function Simulator() {
   const labelClass = "block text-sm font-medium text-text mb-1.5";
 
   return (
-    <section id="simulador" className="relative py-20 lg:py-32 overflow-x-hidden">
+    <section id="simulador" className="relative py-20 lg:py-32">
       {/* Dark gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-700/20 rounded-full blur-[120px] -translate-y-1/4 translate-x-1/4" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] translate-y-1/4 -translate-x-1/4" />
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-700/20 rounded-full blur-[120px] -translate-y-1/4 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[100px] translate-y-1/4 -translate-x-1/4" />
+      </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}

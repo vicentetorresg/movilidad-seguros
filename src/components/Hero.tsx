@@ -102,7 +102,7 @@ export default function Hero() {
                 </div>
               </div>
               <p className="text-sm text-text-secondary leading-relaxed mb-3">
-                Pagaba un seguro de desgravamen incluido en la cuota de su crédito. Al portar su seguro, recuperó la diferencia acumulada.
+                Pagaba un seguro de desgravamen incluido en la cuota de su crédito. Al portar su seguro, recuperó el seguro no devengado de las cuotas que aún no había pagado.
               </p>
               <div className="flex items-center justify-between bg-accent-50 rounded-xl px-4 py-3 border border-accent-100">
                 <div>
@@ -143,7 +143,7 @@ export default function Hero() {
               <p className="text-text-secondary text-[15px] leading-relaxed mb-6">
                 Carlos tenía un crédito de consumo con su banco y pagaba un seguro de desgravamen
                 incluido en la cuota. Al portar su seguro con nosotros, obtuvo una póliza más
-                económica y recuperó la diferencia acumulada.
+                económica y recuperó el seguro no devengado de las cuotas que aún no había pagado.
               </p>
 
               <div className="bg-accent-50 rounded-xl p-5 mb-6 border border-accent-100">

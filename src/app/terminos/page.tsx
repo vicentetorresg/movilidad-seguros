@@ -77,13 +77,13 @@ export default function Terminos() {
             la gestión.
           </p>
 
-          <h2>6. Honorarios</h2>
+          <h2>6. Costo del servicio</h2>
           <p>
-            La simulación y el análisis inicial son gratuitos. Los honorarios
-            por la gestión de portabilidad serán informados al usuario antes
-            de iniciar el proceso formal y estarán sujetos a su aceptación
-            expresa. La Empresa solo cobrará en caso de que la portabilidad
-            resulte exitosa.
+            El servicio de portabilidad de seguros no tiene costo alguno para
+            el cliente. La simulación, el análisis y la gestión completa del
+            proceso son gratuitos. La Empresa recibe su remuneración
+            directamente de la compañía aseguradora que emite la nueva póliza,
+            sin que esto genere ningún cobro al usuario.
           </p>
 
           <h2>7. Responsabilidad</h2>

@@ -284,7 +284,7 @@ function CustomSelect({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 pl-11 pr-10 py-3.5 rounded-xl border border-border bg-surface text-left text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer hover:border-primary-200"
+        className="w-full flex items-center gap-3 pl-11 pr-10 py-3.5 rounded-xl border border-border bg-surface text-left text-base transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer hover:border-primary-200"
       >
         <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
         <span className={selected ? "text-text font-medium" : "text-text-muted"}>
@@ -589,7 +589,7 @@ export default function Simulator() {
   };
 
   const inputBase =
-    "w-full px-4 py-3.5 rounded-xl border border-border bg-surface text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm";
+    "w-full px-4 py-3.5 rounded-xl border border-border bg-surface text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base";
   const inputWithIcon = `${inputBase} pl-11`;
   const labelClass = "block text-sm font-medium text-text mb-1.5";
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -13,6 +14,11 @@ const About = dynamic(() => import("@/components/About"), { ssr: false });
 const Contact = dynamic(() => import("@/components/Contact"), { ssr: false });
 
 export default function ClientPage() {
+  useEffect(() => {
+    // Force scroll to top on load (fixes Instagram in-app browser auto-scroll)
+    setTimeout(() => window.scrollTo(0, 0), 1);
+  }, []);
+
   return (
     <>
       <Navbar />

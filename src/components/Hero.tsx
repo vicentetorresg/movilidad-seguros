@@ -102,7 +102,7 @@ export default function Hero() {
                 </div>
               </div>
               <p className="text-sm text-text-secondary leading-relaxed mb-3">
-                Pagaba un seguro de desgravamen incluido en la cuota de su crédito. Al portar su seguro, recuperó el seguro no devengado de las cuotas que aún no había pagado.
+                Tenía un crédito de consumo y pagaba $38.000 mensuales en seguro de desgravamen. Portó su seguro con nosotros y recuperó $985.985 del seguro no devengado.
               </p>
               <div className="flex items-center justify-between bg-accent-50 rounded-xl px-4 py-3 border border-accent-100">
                 <div>
@@ -141,9 +141,9 @@ export default function Hero() {
               </div>
 
               <p className="text-text-secondary text-[15px] leading-relaxed mb-6">
-                Carlos tenía un crédito de consumo con su banco y pagaba un seguro de desgravamen
-                incluido en la cuota. Al portar su seguro con nosotros, obtuvo una póliza más
-                económica y recuperó el seguro no devengado de las cuotas que aún no había pagado.
+                Carlos tenía un crédito de consumo a 48 meses con su banco y pagaba $38.000 mensuales
+                en seguro de desgravamen incluido en la cuota. Al portar su seguro, recuperó
+                $985.985 del seguro no devengado y ahora paga una prima mensual más baja.
               </p>
 
               <div className="bg-accent-50 rounded-xl p-5 mb-6 border border-accent-100">

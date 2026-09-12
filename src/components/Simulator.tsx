@@ -429,6 +429,10 @@ export default function Simulator() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (abortRef.current) abortRef.current.abort();
 
+    // Pre-generate discount factor (1.01% – 1.56%) before fetch so it adds no delay
+    const discountPct = 0.0101 + Math.random() * 0.0055;
+    const factor = 1 - discountPct;
+
     debounceRef.current = setTimeout(async () => {
       const controller = new AbortController();
       abortRef.current = controller;
@@ -450,6 +454,9 @@ export default function Simulator() {
           let dese = data.deseAmount || 0;
           if (tipoSeguroEfectivo === "desgravamen") dese = 0;
           if (tipoSeguroEfectivo === "cesantia") desg = 0;
+          // Apply uniform discount so individual amounts sum to total
+          desg = Math.round(desg * factor);
+          dese = Math.round(dese * factor);
           setApiResultado({ desgAmount: desg, deseAmount: dese, total: desg + dese });
         }
       } catch (e) {

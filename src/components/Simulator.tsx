@@ -706,7 +706,7 @@ export default function Simulator() {
                       Tus datos
                     </h3>
                     <p className="text-sm text-text-muted mb-5">
-                      Para contactarte con tu simulación
+                      Para simular en línea tu devolución
                     </p>
 
                     <div className="space-y-3.5">

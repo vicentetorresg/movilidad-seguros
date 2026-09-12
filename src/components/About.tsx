@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 const metrics = [
   { icon: Users, value: "+2.500", label: "Clientes atendidos" },
-  { icon: TrendingUp, value: "$850M+", label: "Devueltos a clientes" },
+  { icon: TrendingUp, value: "+$850.000.000", label: "Devueltos a clientes" },
   { icon: Award, value: "100%", label: "Proceso legal" },
 ];
 

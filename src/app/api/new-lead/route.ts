@@ -100,6 +100,7 @@ export async function POST(req: NextRequest) {
       <div style="padding:20px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center">
         <p style="color:#94a3b8;font-size:11px;margin:0">* Monto referencial sujeto a confirmación.</p>
         <p style="color:#94a3b8;font-size:11px;margin:4px 0 0">Rebaja Tu Seguro | Apoquindo 6410, Of. 1404, Las Condes</p>
+        <p style="margin:4px 0 0"><a href="https://www.rebajatuseguro.cl" style="color:#2663EB;font-size:11px;text-decoration:none">www.rebajatuseguro.cl</a></p>
       </div>
     </div>
   </div>

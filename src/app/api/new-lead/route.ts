@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     // Email al cliente
     await resend.emails.send({
-      from: "Rebaja Tu Seguro <notificaciones@proppi.cl>",
+      from: "Rebaja Tu Seguro <notificaciones@rebajatuseguro.cl>",
       to: email,
       cc: "contacto@rebajatuseguro.cl",
       subject: `${nombre}, tu simulación de portabilidad está lista`,

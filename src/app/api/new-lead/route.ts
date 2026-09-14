@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     // Email al cliente
     await resend.emails.send({
-      from: "Movilidad Seguros <notificaciones@rebajatuseguro.cl>",
+      from: "Rebaja Tu Seguro <notificaciones@proppi.cl>",
       to: email,
       cc: "contacto@rebajatuseguro.cl",
       subject: `${nombre}, tu simulación de portabilidad está lista`,
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   <div style="max-width:600px;margin:0 auto;padding:32px 16px">
     <div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(3,105,161,0.08)">
       <!-- Header -->
-      <div style="background:linear-gradient(135deg,#0369A1 0%,#0EA5E9 100%);padding:28px 24px;text-align:center">
+      <div style="background:linear-gradient(135deg,#0F1D3D 0%,#2663EB 100%);padding:28px 24px;text-align:center">
         <img src="https://www.rebajatuseguro.cl/rebajatuseguro-logo.svg" alt="Rebaja Tu Seguro" width="220" height="40" style="display:inline-block;height:40px;width:auto;filter:brightness(0) invert(1)" />
         <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:10px 0 0">Portabilidad de Seguros</p>
       </div>
@@ -92,14 +92,14 @@ export async function POST(req: NextRequest) {
         </p>
 
         <div style="text-align:center">
-          <a href="https://www.rebajatuseguro.cl/#contacto" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:14px;font-weight:600">Contáctanos</a>
+          <a href="https://www.rebajatuseguro.cl/#contacto" style="display:inline-block;background:#2663EB;color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:14px;font-weight:600">Contáctanos</a>
         </div>
       </div>
 
       <!-- Footer -->
       <div style="padding:20px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center">
         <p style="color:#94a3b8;font-size:11px;margin:0">* Monto referencial sujeto a confirmación.</p>
-        <p style="color:#94a3b8;font-size:11px;margin:4px 0 0">Movilidad Seguros | Apoquindo 6410, Of. 1404, Las Condes</p>
+        <p style="color:#94a3b8;font-size:11px;margin:4px 0 0">Rebaja Tu Seguro | Apoquindo 6410, Of. 1404, Las Condes</p>
       </div>
     </div>
   </div>

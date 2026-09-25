@@ -107,7 +107,48 @@ export default function Terminos() {
             </li>
           </ul>
 
-          <h2>8. Propiedad intelectual</h2>
+          <h2>8. Código de conducta CMF</h2>
+          <p>
+            Fortex Corredora de Seguros SpA se rige por el Código de Conducta
+            establecido por la Comisión para el Mercado Financiero (CMF) para
+            corredores de seguros, comprometiéndose a:
+          </p>
+          <ul>
+            <li>
+              Actuar con diligencia, lealtad y en el mejor interés de sus
+              clientes
+            </li>
+            <li>
+              Informar de manera clara y oportuna sobre las condiciones de las
+              pólizas
+            </li>
+            <li>
+              Mantener la confidencialidad de la información de sus clientes
+            </li>
+            <li>
+              Evitar conflictos de interés y, cuando existan, declararlos
+              oportunamente
+            </li>
+            <li>
+              Cumplir con todas las disposiciones legales y reglamentarias
+              aplicables
+            </li>
+            <li>
+              Mantener una conducta ética y profesional en todas sus
+              operaciones
+            </li>
+          </ul>
+          <p>
+            El texto completo del Código de Conducta CMF aplicable a nuestra
+            operación se encuentra disponible para consulta de nuestros clientes.
+            Para solicitar una copia, puede contactarnos a{" "}
+            <a href="mailto:contacto@rebajatuseguro.cl">
+              contacto@rebajatuseguro.cl
+            </a>
+            .
+          </p>
+
+          <h2>9. Propiedad intelectual</h2>
           <p>
             Todo el contenido del sitio web, incluyendo textos, diseños,
             logotipos, marcas y software, es propiedad de Fortex Corredora de
@@ -115,7 +156,7 @@ export default function Terminos() {
             legislación de propiedad intelectual vigente.
           </p>
 
-          <h2>9. Protección de datos</h2>
+          <h2>10. Protección de datos</h2>
           <p>
             El tratamiento de datos personales se rige por nuestra{" "}
             <Link href="/privacidad" className="text-primary hover:underline">
@@ -124,7 +165,7 @@ export default function Terminos() {
             , la cual forma parte integral de estos términos y condiciones.
           </p>
 
-          <h2>10. Legislación aplicable</h2>
+          <h2>11. Legislación aplicable</h2>
           <p>
             Estos términos y condiciones se rigen por las leyes de la
             República de Chile. Cualquier controversia será sometida a la
@@ -132,7 +173,7 @@ export default function Terminos() {
             Chile.
           </p>
 
-          <h2>11. Modificaciones</h2>
+          <h2>12. Modificaciones</h2>
           <p>
             La Empresa se reserva el derecho de modificar estos términos y
             condiciones en cualquier momento. Las modificaciones entrarán en
@@ -140,7 +181,7 @@ export default function Terminos() {
             del servicio implica la aceptación de los términos vigentes.
           </p>
 
-          <h2>12. Contacto</h2>
+          <h2>13. Contacto</h2>
           <p>
             Para consultas sobre estos términos, puede contactarnos en:
           </p>

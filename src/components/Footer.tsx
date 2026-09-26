@@ -37,11 +37,11 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-xs text-white/60 text-center sm:text-left">
             <p>
-              &copy; {new Date().getFullYear()} Fortex Corredora de Seguros SpA
+              &copy; {new Date().getFullYear()} Fortex Corredora de Seguros SpA (Código CMF N° 10275)
               — RUT 78.452.756-5
             </p>
             <p className="mt-0.5">
-              Seguros Intermediados por Fortex Corredora de Seguros SpA. Todos los derechos reservados.
+              Seguros Intermediados por Fortex Corredora de Seguros SpA (Código CMF N° 10275). Todos los derechos reservados.
             </p>
           </div>
           <div className="flex gap-6 text-xs text-white/60">

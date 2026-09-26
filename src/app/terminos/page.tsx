@@ -30,7 +30,7 @@ export default function Terminos() {
           <p>
             El sitio web rebajatuseguro.cl es operado por{" "}
             <strong>Fortex Corredora de Seguros SpA</strong>, RUT
-            78.452.756-5, con domicilio en Apoquindo 6410, Of. 1404, Las
+            78.452.756-5, Código CMF N° 10275, con domicilio en Apoquindo 6410, Of. 1404, Las
             Condes, Santiago, Chile.
           </p>
 

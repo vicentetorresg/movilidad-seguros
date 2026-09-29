@@ -105,7 +105,7 @@ const TASAS: Record<string, [number, number, number, number, number]> = {
   "Caja Los Heroes":       [0.0017765, 0.0006156, 0, 0.0000000, 0.0000000],
 };
 
-// Slug mapping for mueveseguro.cl API
+// Internal institution identifiers
 const SLUGS: Record<string, string> = {
   "Banco BCI": "banco-bci",
   "Banco BICE": "banco-bice",

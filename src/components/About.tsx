@@ -1,13 +1,7 @@
 "use client";
 
-import { Building2, Users, TrendingUp, Award, MapPin, Mail, Clock } from "lucide-react";
+import { Building2, MapPin, Mail, Clock } from "lucide-react";
 import { motion } from "framer-motion";
-
-const metrics = [
-  { icon: Users, value: "+2.500", label: "Clientes atendidos" },
-  { icon: TrendingUp, value: "+$850.000.000", label: "Devueltos a clientes" },
-  { icon: Award, value: "100%", label: "Proceso legal" },
-];
 
 export default function About() {
   return (
@@ -31,28 +25,6 @@ export default function About() {
             personales sin perder cobertura.
           </p>
         </motion.div>
-
-        {/* Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-16">
-          {metrics.map((m, i) => (
-            <motion.div
-              key={m.label}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="text-center p-6 rounded-2xl bg-surface border border-border-light"
-            >
-              <div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center mx-auto mb-3">
-                <m.icon className="w-5 h-5 text-primary-600" />
-              </div>
-              <p className="text-2xl sm:text-3xl font-bold text-primary-950">
-                {m.value}
-              </p>
-              <p className="text-sm text-text-muted mt-1">{m.label}</p>
-            </motion.div>
-          ))}
-        </div>
 
         {/* Office card */}
         <motion.div

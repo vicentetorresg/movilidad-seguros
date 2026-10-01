@@ -1,7 +1,4 @@
-"use client";
-
 import { ArrowRight, ShieldCheck, Clock, Laptop } from "lucide-react";
-import { motion } from "framer-motion";
 
 const badges = [
   { icon: ShieldCheck, text: "100% Legal" },
@@ -21,33 +18,24 @@ export default function Hero() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.05 }}
-              className="text-[2.5rem] sm:text-5xl lg:text-[3.5rem] font-bold text-primary-950 leading-[1.08] tracking-tight"
+            <h1
+              className="text-[2.5rem] sm:text-5xl lg:text-[3.5rem] font-bold text-primary-950 leading-[1.08] tracking-tight animate-fade-up"
             >
               Recupera el dinero{" "}
               <span className="text-primary-600">de tus seguros</span> asociados
               a créditos
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mt-6 text-lg text-text-secondary max-w-xl leading-relaxed"
+            <p
+              className="mt-6 text-lg text-text-secondary max-w-xl leading-relaxed animate-fade-up [animation-delay:80ms]"
             >
               Portamos tus seguros de créditos de consumo o automotriz,
               devolviendo tu dinero de forma rápida, segura y completamente
               online. Sin letra chica.
-            </motion.p>
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.16 }}
-              className="mt-8 flex flex-col sm:flex-row gap-4"
+            <div
+              className="mt-8 flex flex-col sm:flex-row gap-4 animate-fade-up [animation-delay:160ms]"
             >
               <a
                 href="#simulador"
@@ -62,13 +50,10 @@ export default function Hero() {
               >
                 Cómo funciona
               </a>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-10 flex flex-wrap gap-5"
+            <div
+              className="mt-10 flex flex-wrap gap-5 animate-fade-up [animation-delay:300ms]"
             >
               {badges.map((b) => (
                 <div
@@ -79,14 +64,11 @@ export default function Hero() {
                   <span className="font-medium">{b.text}</span>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
             {/* Mobile case study */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="mt-8 lg:hidden rounded-2xl p-5 bg-surface border border-border-light shadow-lg shadow-primary-950/5"
+            <div
+              className="mt-8 lg:hidden rounded-2xl p-5 bg-surface border border-border-light shadow-lg shadow-primary-950/5 animate-fade-up [animation-delay:400ms]"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-sm font-bold text-white shrink-0">
@@ -114,15 +96,12 @@ export default function Hero() {
                   <p className="text-sm font-semibold text-primary-950">12 días · $0 costo</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Desktop case study card */}
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="hidden lg:block"
+          <div
+            className="hidden lg:block animate-fade-up [animation-delay:250ms]"
           >
             <div className="rounded-2xl p-8 bg-surface border border-border-light shadow-xl shadow-primary-950/5">
               <div className="flex items-center gap-2 mb-6">
@@ -165,7 +144,7 @@ export default function Hero() {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

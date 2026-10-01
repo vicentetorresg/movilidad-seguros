@@ -788,7 +788,8 @@ export default function Simulator() {
                           className="mt-0.5 w-4 h-4 rounded accent-primary cursor-pointer"
                         />
                         <span className="text-xs text-text-muted leading-relaxed">
-                          Autorizo el tratamiento de mis datos personales.
+                          Autorizo el tratamiento de mis datos personales según la{" "}
+                          <a href="/privacidad" target="_blank" className="text-primary hover:underline font-medium">política de privacidad</a>.
                         </span>
                       </label>
                       <label className="flex items-start gap-3 cursor-pointer">
@@ -802,7 +803,8 @@ export default function Simulator() {
                         />
                         <span className="text-xs text-text-muted leading-relaxed">
                           Autorizo tratamiento para portabilidad y promoción de
-                          seguros.
+                          seguros según los{" "}
+                          <a href="/terminos" target="_blank" className="text-primary hover:underline font-medium">términos y condiciones</a>.
                         </span>
                       </label>
                     </div>

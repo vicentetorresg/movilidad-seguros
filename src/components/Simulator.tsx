@@ -601,7 +601,7 @@ export default function Simulator() {
   const labelClass = "block text-sm font-medium text-text mb-1.5";
 
   return (
-    <section id="simulador" className="relative py-20 lg:py-32">
+    <section className="relative py-20 lg:py-32">
       {/* Dark gradient background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800" />
@@ -615,7 +615,8 @@ export default function Simulator() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center max-w-2xl mx-auto mb-12 lg:mb-16"
+          id="simulador"
+          className="text-center max-w-2xl mx-auto mb-12 lg:mb-16 scroll-mt-20"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">
             Descubre cuánto podrías recuperar
@@ -789,7 +790,7 @@ export default function Simulator() {
                         />
                         <span className="text-xs text-text-muted leading-relaxed">
                           Autorizo el tratamiento de mis datos personales según la{" "}
-                          <a href="/privacidad" target="_blank" className="text-primary hover:underline font-medium">política de privacidad</a>.
+                          <a href="/privacidad" className="text-primary hover:underline font-medium">política de privacidad</a>.
                         </span>
                       </label>
                       <label className="flex items-start gap-3 cursor-pointer">
@@ -804,7 +805,7 @@ export default function Simulator() {
                         <span className="text-xs text-text-muted leading-relaxed">
                           Autorizo tratamiento para portabilidad y promoción de
                           seguros según los{" "}
-                          <a href="/terminos" target="_blank" className="text-primary hover:underline font-medium">términos y condiciones</a>.
+                          <a href="/terminos" className="text-primary hover:underline font-medium">términos y condiciones</a>.
                         </span>
                       </label>
                     </div>
